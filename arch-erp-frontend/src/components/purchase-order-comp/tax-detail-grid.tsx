@@ -130,7 +130,6 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick }: Props) => {
               <td className="border p-2">
                 <NumericInput
                   className="w-full border border-gray-300 rounded-md p-2"
-                  type="number"
                   length={[12, 2]}
                   isDecimal={true}
                   isAbsolute={true}
