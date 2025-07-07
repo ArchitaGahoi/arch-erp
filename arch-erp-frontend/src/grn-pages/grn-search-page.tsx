@@ -6,30 +6,30 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export default function GRNSearchPage() {
-  const [orders, setOrders] = useState<GRN[]>([]);
+  const [receipts, setReciepts] = useState<GRN[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchOrders();
+    fetchReceipts();
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchReceipts = async () => {
     const res = await api.get("/grn");
-    setOrders(res.data as GRN[]);
+    setReciepts(res.data as GRN[]);
   };
 
-const handleEdit = async (order: GRN) => {
+const handleEdit = async (receipt: GRN) => {
   console.log("res");
   try {
-    const res = await api.get(`/grn/${order.grnId}`);
+    const res = await api.get(`/grn/${receipt.grnId}`);
     console.log("res",res.data);
-    const fullOrder = res.data; 
+    const fullReceipt = res.data; 
 
     navigate("/grn-page", {
-      state: { editItem: fullOrder },
+      state: { editItem: fullReceipt },
     });
   } catch (err) {
-    console.error("Failed to fetch full PO data", err);
+    console.error("Failed to fetch full GRN data", err);
   }
 };
 
@@ -45,7 +45,7 @@ const handleEdit = async (order: GRN) => {
           <Button onClick={handleAdd} variant="outline">Add</Button>
         </div>
       </div>
-      <GRNTable orders={orders} onEdit={handleEdit} />
+      <GRNTable receipts={receipts} onEdit={handleEdit} />
     </div>
   );
 }

@@ -53,7 +53,7 @@ const data = {
     },
     {
       title: "Purchase Order",
-      link: "/purchaseOrder",
+      link: "/purchaseOrder-search",
       icon: IconChartBar,
     },
     {

@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 // import { useForm } from 'react-hook-form';
 import GRNHeader from "@/components/grn-comp/grn-header";
 import GRNForm from "@/components/grn-comp/grn-form"; 
-//import ItemDetailGrid from "@/components/purchase-order-comp/item-detail-grid";
+import ItemDetailGrid from "@/components/grn-comp/grn-item-detail-grid";
 //import ItemDetailForm from "@/components/purchase-order-comp/item-detail-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { GRN } from "@/components/grn-comp/grn";
@@ -36,7 +36,7 @@ export default function GRNPage() {
   // const { setValue } = useForm();
   const token = localStorage.getItem('token');
   const [editItem, setEditItem] = useState<GRN | null>(null);
-  // const [itemDetails, setItemDetails] = useState<ItemDetail[]>([]);
+  const [itemDetails, setItemDetails] = useState<ItemDetail[]>([]);
   // const [taxDetails, setTaxDetails] = useState<TaxDetail[]>([]);
   //const [netAmount, setNetAmount] = useState(0);
   const [showItemDetailForm, setShowItemDetailForm] = useState(false);
@@ -52,7 +52,7 @@ useEffect(() => {
   if (location.state?.editItem) {
     const fullData = location.state.editItem;
     setEditItem(fullData);
-    // setItemDetails(fullData.itemDetails || []);
+    setItemDetails(fullData.itemDetails || []);
     // setTaxDetails(fullData.taxDetails || []);
     // setNetAmount(Number(fullData.netAmount) || 0);
   }
@@ -129,7 +129,7 @@ useEffect(() => {
     setEditItem(null); // Clear form after save/update
     // formRef.current?.reset();
     
-    //setItemDetails([]);
+    setItemDetails([]);
 
     formRef.current?.reset();
   };
@@ -144,7 +144,7 @@ useEffect(() => {
   const handleClear = () =>{
     setEditItem(null);
     
-    //setItemDetails([]);
+    setItemDetails([]);
     formRef.current?.reset();
     console.log("clear")
     //setErrData({});
@@ -175,7 +175,7 @@ useEffect(() => {
     }
     setEditItem(null); // Clear form after delete
 
-    //setItemDetails([]);
+    setItemDetails([]);
     formRef.current?.reset();
   };
 
@@ -183,9 +183,9 @@ useEffect(() => {
     navigate("/grn-search");
   };
 
-  const handleAddItem = () => {
-    setShowItemDetailForm(true);
-  };
+  // const handleAddItem = () => {
+  //   setShowItemDetailForm(true);
+  // };
 
   // const addItemToGrid = (item: ItemDetail) => {
   //   setItemDetails([...itemDetails, item]);
@@ -276,16 +276,16 @@ useEffect(() => {
         />
       {/* </form> */}
 
-      <div className="my-6 flex justify-end">
+      {/* <div className="my-6 flex justify-end">
         <button
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleAddItem}
         >
           Add Item
         </button>
-      </div>
+      </div> */}
           
-      {showItemDetailForm && (
+      {/* {showItemDetailForm && (
         <Dialog open={showItemDetailForm} onOpenChange={setShowItemDetailForm}>
           <DialogContent>
             <div className="mb-6">
@@ -293,11 +293,11 @@ useEffect(() => {
             </div>
           </DialogContent>
         </Dialog>
-      )}
+      )} */}
 
-      {/* <div className="my-6">
+      <div className="my-6">
         <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} />
-      </div> */}
+      </div>
 
       <Dialog open={openDialog} onOpenChange={handleDialogClose}>
         <DialogContent className="p-6">

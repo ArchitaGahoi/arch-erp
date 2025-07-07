@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import type {GRN} from "@/components/grn-comp/grn";
 interface GRNTableProps {
-  orders: GRN[];
-  onEdit: (order: GRN) => void;
+  receipts: GRN[];
+  onEdit: (receipts: GRN) => void;
 }
 
-const GRNTable = ({ orders, onEdit }: GRNTableProps) => {
+const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
     const statusNoes = [
     { label: "Initialised", value: 1 },
     { label: "Approved", value: 2 },
@@ -29,19 +29,19 @@ const GRNTable = ({ orders, onEdit }: GRNTableProps) => {
         </tr>
       </thead>
       <tbody>
-        {orders.map((order, index) => {
-          const statusNo = statusNoes.find((ut) => ut.value === Number(order.statusNo));
+        {receipts.map((receipt, index) => {
+          const statusNo = statusNoes.find((ut) => ut.value === Number(receipt.statusNo));
           return(
-          <tr key={order.grnId}>
+          <tr key={receipt.grnId}>
             <td className="p-2 border">{index + 1}</td>
-            <td className="p-2 border">{order.grnDate.toLocaleString()}</td>
+            <td className="p-2 border">{receipt.grnDate.toLocaleString()}</td>
             <td className="p-2 border">{statusNo?.label}</td>
-            <td className="p-2 border">{order.supplierLocationLabel || order.supplierLocationNo}</td>
-            <td className="p-2 border">{order.poNo}</td>
-            <td className="p-2 border">{order.challanNo}</td>
-            <td className="p-2 border">{order.challanDate.toLocaleString()}</td>
+            <td className="p-2 border">{receipt.supplierLocationLabel || receipt.supplierLocationNo}</td>
+            <td className="p-2 border">{receipt.poNo}</td>
+            <td className="p-2 border">{receipt.challanNo}</td>
+            <td className="p-2 border">{receipt.challanDate.toLocaleString()}</td>
             <td className="p-2 border">
-              <Button onClick={() => onEdit(order)} variant="outline">
+              <Button onClick={() => onEdit(receipt)} variant="outline">
                 Edit
               </Button>
             </td>
