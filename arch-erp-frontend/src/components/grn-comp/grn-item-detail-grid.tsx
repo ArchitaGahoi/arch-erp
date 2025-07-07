@@ -6,6 +6,7 @@ interface ItemDetail {
   preRecivedQuantity: number;
   balance: number;
   recivedQuantity: number;
+  selected?: boolean;
 }
 
 interface Props {
@@ -14,7 +15,7 @@ interface Props {
   onRowClick?: (item: ItemDetail) => void;
 }
 
-const ItemDetailGrid = ({ itemDetails, onRowClick, }: Props) => {
+const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => {
   // const handleDelete = (index: number) => {
   //   const updated = [...itemDetails];
   //   updated.splice(index, 1);
@@ -44,6 +45,17 @@ const ItemDetailGrid = ({ itemDetails, onRowClick, }: Props) => {
               onClick={() => onRowClick?.(item)}
               >
               <td>{index+1}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={item.selected || false}
+                  onChange={(e) => {
+                    const updated = [...itemDetails];
+                    updated[index].selected = e.target.checked;
+                    setItemDetails(updated);
+                  }}
+                />
+              </td>
               <td>{item.itemName}</td>
               <td>{item.poQuantity}</td>
               <td>{item.preRecivedQuantity}</td>

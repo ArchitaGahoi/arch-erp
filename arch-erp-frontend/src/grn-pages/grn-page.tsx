@@ -79,6 +79,7 @@ useEffect(() => {
 
   const handleFormSubmit = async (data: GRN) => {
     const formData = formRef.current?.getValues();
+    const selectedItems = itemDetails.filter(item => item.selected);
 
     // if (!formData.poNo) errors.poNo = "PO No is required";
     // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
@@ -92,7 +93,8 @@ useEffect(() => {
       poNo: formData.poNo.match(/\((\d+)\)/)?.[1] || "",
       challanNo: formData.challanNo,
       challanDate: formData.challanDate,
-      itemDetails: formData.itemDetails,
+      itemDetails: selectedItems,
+
       // taxDetails: formData.taxDetails,
       // netAmount: formData.netAmount
     };
@@ -182,6 +184,30 @@ useEffect(() => {
   const handleSearch = () => {
     navigate("/grn-search");
   };
+
+  const handleSupplierChange = (supplierLocationNo: string) => {
+  formRef.current?.reset();
+  setItemDetails([]);
+};
+
+  const handlePOChange = async (poNo: string) => {
+    try {
+      const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`);
+      const items = res.data.map((item: any) => ({
+        itemName: item.itemName,
+        poQuantity: item.poQuantity,
+        preRecivedQuantity: item.preRecivedQuantity || 0,
+        balance: item.poQuantity - (item.preRecivedQuantity || 0),
+        recivedQuantity: 0,
+        selected: false
+      }));
+      setItemDetails(items);
+    } catch (err) {
+      toast.error("Failed to load item details");
+      setItemDetails([]);
+    }
+  };
+
 
   // const handleAddItem = () => {
   //   setShowItemDetailForm(true);
@@ -273,6 +299,8 @@ useEffect(() => {
           isEdit={!!editItem}
           
           errData={errData}
+          onSupplierChange={handleSupplierChange}
+          onPOChange={handlePOChange}
         />
       {/* </form> */}
 

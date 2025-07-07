@@ -37,6 +37,8 @@ interface grnFormProps {
   //onDelete?: () => Promise<void>;
   
   errData?: ErrorData;
+  onSupplierChange?: (supplierLocationNo: string) => void;
+  onPOChange?: (poNo: string) => void;
 }
 
 interface ErrorData {
@@ -51,7 +53,7 @@ interface ErrorData {
 
 
 const GRNForm = forwardRef(function grnForm(
-  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },  errData }: grnFormProps,
+  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },  errData, onSupplierChange, onPOChange }: grnFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   const form = useForm<grnFormData>({
@@ -92,6 +94,7 @@ const GRNForm = forwardRef(function grnForm(
   const [query, setQuery] = useState("");
   const [supplierOptions, setSupplierOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [poOptions, setPoOptions] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -120,6 +123,20 @@ const GRNForm = forwardRef(function grnForm(
             .toLowerCase()
             .includes(query.toLowerCase())
         );
+
+  useEffect(() => {
+  if (!defaultValues?.supplierLocationNo) return;
+  
+  const fetchPOs = async () => {
+    try {
+      const res = await api.get(`/purchase-order/${defaultValues.supplierLocationNo}`);
+      setPoOptions(res.data as any[]);
+    } catch {
+      setPoOptions([]);
+    }
+  };
+  fetchPOs();
+}, [defaultValues?.supplierLocationNo]);
 
   const getErrorClass = (field: keyof ErrorData) =>
     (errData?.[field] || form.formState.errors[field]) ? "border-red-500" : "";
@@ -239,6 +256,7 @@ const GRNForm = forwardRef(function grnForm(
                         onChange={(e) => {
                           setQuery(e.target.value);
                           field.onChange(e.target.value);
+                          onSupplierChange?.(e.target.value);
                         }}
                         displayValue={(val: string | number) => {
                           const selectedPartner = supplierOptions.find(p => p.bpId === val);
@@ -278,13 +296,34 @@ const GRNForm = forwardRef(function grnForm(
             )}
           />
           <FormField
-            control={form.control}
             name="poNo"
+            control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
-                  <Input className="w-full border bg-white rounded-md p-2" {...field} />
+                  <Combobox value={field.value} onChange={(val) => {
+                    field.onChange(val);
+                    onPOChange?.(val);
+                  }}>
+                    <div className="relative">
+                      <Combobox.Input
+                        className="w-full border border-gray-300 rounded-md p-2"
+                        onChange={(e) => field.onChange(e.target.value)}
+                        displayValue={(val: string) => val}
+                        placeholder="Select PO No"
+                      />
+                      {poOptions.length > 0 && (
+                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {poOptions.map((po) => (
+                            <Combobox.Option key={po.poId} value={po.poNo}>
+                              {po.poNo}
+                            </Combobox.Option>
+                          ))}
+                        </Combobox.Options>
+                      )}
+                    </div>
+                  </Combobox>
                 </FormControl>
                 <FormMessage />
               </FormItem>
