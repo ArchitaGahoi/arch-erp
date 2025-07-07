@@ -1,0 +1,47 @@
+.combo-box-container {
+  position: relative;
+  width: 260px;
+  margin: 24px auto;
+}
+
+.combo-box-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.combo-box-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.combo-box-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-top: none;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 10;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 320px;
+}
+
+.combo-box-suggestion {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.combo-box-suggestion:hover,
+.combo-box-suggestion.active {
+  background: #1976d2;
+  color: #fff;
+}

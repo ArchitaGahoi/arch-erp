@@ -1,0 +1,69 @@
+import { Button } from "@/components/ui/button";
+
+interface ItemDetail {
+  itemName: string;
+  unit: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+interface Props {
+  itemDetails: ItemDetail[];
+  setItemDetails: (items: ItemDetail[]) => void;
+  onRowClick?: (item: ItemDetail) => void;
+}
+
+const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => {
+  const handleDelete = (index: number) => {
+    const updated = [...itemDetails];
+    updated.splice(index, 1);
+    setItemDetails(updated);
+  };
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow mt-4">
+      <h2 className="text-lg font-bold mb-2">Item Details</h2>
+      <table className="table-auto w-full">
+        <thead>
+          <tr className="bg-gray-100 text-left">
+            <th className="p-2 border" >SNo.</th>
+            <th className="p-2 border">Item Name</th>
+            <th className="p-2 border">Unit</th>
+            <th className="p-2 border">Quantity</th>
+            <th className="p-2 border">Rate</th>
+            <th className="p-2 border">Amount</th>
+            <th className="p-2 border">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {itemDetails.map((item, index) => (
+            <tr key={index}
+            className="hover:bg-gray-50 cursor-pointer"
+              onClick={() => onRowClick?.(item)}
+              >
+              <td>{index+1}</td>
+              <td>{item.itemName}</td>
+              <td>{item.unit}</td>
+              <td>{item.quantity}</td>
+              <td>{item.rate}</td>
+              <td>{item.amount}</td>
+              <td>
+                <Button variant="outline" onClick={() => handleDelete(index)}>
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="font-semibold mt-2 flex justify-end">
+        Total Item Amount: {itemDetails
+          .reduce((sum, item) => sum + Number(item.amount || 0), 0)
+          .toFixed(2)};
+      </p>
+    </div>
+  );
+};
+
+export default ItemDetailGrid;

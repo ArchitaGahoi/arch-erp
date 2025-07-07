@@ -1,0 +1,7 @@
+{
+  "userTypes": {
+    "ADMIN": 1,
+    "GENERAL": 2,
+    "GUEST": 3
+  }
+}
