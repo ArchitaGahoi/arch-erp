@@ -10,7 +10,8 @@ import BusinessPartnerPage from "./business-partner-pages/business-partner-page"
 import BusinessPartnerSearchPage from "./business-partner-pages/business-partner-search-page";
 import PurchaseOrderPage from "./purchase-order-pages/purchase-order-page";
 import PurchaseOrderSearchPage from "./purchase-order-pages/purchase-order-search-page";
-
+import GRNPage from "./grn-pages/grn-page";
+import GRNSearchPage from "./grn-pages/grn-search-page";
 import Layout from "@/components/layout-comp/layout";
 
 
@@ -101,9 +102,26 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          
+          <Route
+            path="/grn-page"
+            element={
+              <ProtectedRoute>
+                <GRNPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/grn-search"
+            element={
+              <ProtectedRoute>
+                <GRNSearchPage />
+              </ProtectedRoute>
+            }
+          />
           </Route>
         </Routes>
-          </BrowserRouter>
+        </BrowserRouter>
       </AuthProvider>
   );
 }

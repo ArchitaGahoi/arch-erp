@@ -63,7 +63,7 @@ const data = {
     },
     {
       title: "Goods Receipt Note",
-      link: "#",
+      link: "/grn-search",
       icon: IconFolder,
     },
     {
