@@ -7,6 +7,7 @@ const itemMasterRoutes = require('./routes/item-master-routes');
 const userMasterRoutes = require('./routes/user-master-routes');
 const businessPartnerRoutes = require('./routes/business-partner-routes');
 const purchaseOrderRoutes = require('./routes/purchase-order-routes');
+const grnRoutes = require('./routes/grn-routes');
 const errorHandler = require('./middleware/error-handler');
 
 const db = require('./config/db');
@@ -59,7 +60,7 @@ app.use('/api/item-master', itemMasterRoutes);
 app.use('/api/user-master', userMasterRoutes);
 app.use('/api/business-partner', businessPartnerRoutes);
 app.use('/api/purchase-order', purchaseOrderRoutes);
-
+app.use('/api/grn', grnRoutes);
 // Error middleware
 app.use(errorHandler);
 
