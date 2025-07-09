@@ -81,19 +81,31 @@ useEffect(() => {
     const formData = formRef.current?.getValues();
     const selectedItems = itemDetails.filter(item => item.selected);
 
+    const hasInvalidItems = selectedItems.some(
+    item => !item.poitemDetailId || item.recivedQuantity == null
+  );
+
+  if (hasInvalidItems) {
+    toast.error("Please select valid items with received quantity before saving.");
+    return;
+  }
+
     // if (!formData.poNo) errors.poNo = "PO No is required";
     // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
-
+    function formatDateTime(date: Date): string {
+      return date.toISOString().slice(0, 19).replace("T", " ");
+    } 
     console.log("sdfgbn....",data);
     const finalData = {
       grnNo: formData.grnNo,
-      grnDate: formData.grnDate,
+      grnDate: formatDateTime(new Date(formData.grnDate)),
       statusNo: formData.statusNo === "Initialised" ? 1 : 2,
       supplierLocationNo: formData.supplierLocationNo,
       poNo: formData.poNo,
       challanNo: formData.challanNo,
-      challanDate: formData.challanDate,
+      challanDate: formatDateTime(new Date(formData.challanDate)),
       itemDetails: selectedItems,
+      createdDate: formatDateTime(new Date()),
 
       // taxDetails: formData.taxDetails,
       // netAmount: formData.netAmount
@@ -109,6 +121,7 @@ useEffect(() => {
       });
         toast.success("GRN updated successfully");
       } else {
+        console.log(itemDetails)
         await api.post("/grn", finalData, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -117,7 +130,7 @@ useEffect(() => {
       });
         toast.success("GRN created successfully");
       }
-      navigate("/grn-search");
+      
     } catch (err: Error | any) {
       console.error(err);
       setErrData(()=>{

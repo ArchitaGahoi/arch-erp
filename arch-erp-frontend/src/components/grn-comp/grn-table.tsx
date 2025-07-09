@@ -18,7 +18,6 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
       <thead className="bg-gray-100">
         <tr>
           <th className="p-2 border">Sr No.</th>
-          <th className="p-2 border">GRN No</th>
           <th className="p-2 border">GRN Date</th>
           <th className="p-2 border">Status</th>
           <th className="p-2 border">Supplier Location</th>

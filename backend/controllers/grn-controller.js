@@ -86,9 +86,14 @@ exports.getGRNById = (req, res) => {
   const grnId = req.params.id;
   const grnSql = "SELECT * FROM GRN WHERE grnId = ?";
   const itemSql = `
-    SELECT g.*, p.itemId, p.itemName, p.quantity AS poQuantity
+    SELECT 
+      g.*, 
+      p.itemId, 
+      i.itemName, 
+      p.quantity AS poQuantity
     FROM GRNItemDetail g
     JOIN PurchaseOrderItemDetail p ON g.poitemDetailId = p.itemDetailId
+    JOIN ItemMaster i ON p.itemId = i.itemId
     WHERE g.grnId = ?
   `;
 
@@ -97,7 +102,10 @@ exports.getGRNById = (req, res) => {
       return res.status(500).json({ message: "Error fetching GRN" });
 
     db.query(itemSql, [grnId], (err, items) => {
-      if (err) return res.status(500).json({ message: "Error fetching items" });
+      if (err) {
+        console.error("Item SQL Error:", err);  
+        return res.status(500).json({ message: "Error fetching items", error: err });
+      }
       res.json({ ...grn[0], itemDetails: items });
     });
   });

@@ -56,6 +56,7 @@ interface ErrorData {
 }
 
 interface ItemDetail {
+  poitemDetailId: number;
   itemName: string;
   poQuantity: number;
   preRecivedQuantity: number;
@@ -317,13 +318,15 @@ const GRNForm = forwardRef(function grnForm(
                       const res = await api.get(`/purchase-order/${selectedPO.poId}`);
                       if (res.data?.itemDetails) {
                         const items = res.data.itemDetails.map((item: any) => ({
-                          itemName: item.itemName,
-                          poQuantity: item.quantity,
-                          preRecivedQuantity: 0,
-                          balance: item.quantity,
-                          recivedQuantity: 0,
-                          selected: false
-                        }));
+                        poitemDetailId: item.poitemDetailId,   // ✅ Required for saving
+                        itemName: item.itemName,
+                        poQuantity: item.quantity,           // ✅ match backend field
+                        preRecivedQuantity: item.preRecivedQuantity || 0,
+                        balance: (item.quantity - item.preRecivedQuantity) || item.quantity,
+                        recivedQuantity: 0,
+                        selected: false
+                      }));
+
                         setItemDetails(items);
                       }
                     } catch (err) {
