@@ -14,6 +14,7 @@ import { useEffect, forwardRef, useImperativeHandle, useState } from "react";
 import { Combobox } from "@headlessui/react";
 //import axios from "axios";
 import { api } from "@/lib/api";
+import ItemDetailGrid from "./grn-item-detail-grid";
 
 const formSchema = z.object({
   grnNo : z.string().min(1, "GR No is required").max(6, "GR No must be 6 characters long"),
@@ -29,6 +30,7 @@ const formSchema = z.object({
 
 export type grnFormData = z.infer<typeof formSchema>;
 
+
 interface grnFormProps {
   defaultValues?: grnFormData;
   //onSubmit: (data: purchaseOrderFormData) => void;
@@ -37,8 +39,10 @@ interface grnFormProps {
   //onDelete?: () => Promise<void>;
   
   errData?: ErrorData;
-  onSupplierChange?: (supplierLocationNo: string) => void;
-  onPOChange?: (poNo: string) => void;
+  itemDetails: ItemDetail[];
+  setItemDetails: (items: ItemDetail[]) => void;
+  // onSupplierChange?: (supplierLocationNo: string) => void;
+  // onPOChange?: (poNo: string) => void;
 }
 
 interface ErrorData {
@@ -51,9 +55,18 @@ interface ErrorData {
   challanDate?: string;
 }
 
+interface ItemDetail {
+  itemName: string;
+  poQuantity: number;
+  preRecivedQuantity: number;
+  balance: number;
+  recivedQuantity: number;
+  selected?: boolean;
+}
+
 
 const GRNForm = forwardRef(function grnForm(
-  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },  errData, onSupplierChange, onPOChange }: grnFormProps,
+  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },  errData, itemDetails, setItemDetails}: grnFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   const form = useForm<grnFormData>({
@@ -95,6 +108,8 @@ const GRNForm = forwardRef(function grnForm(
   const [supplierOptions, setSupplierOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [poOptions, setPoOptions] = useState<any[]>([]);
+  
+
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -125,18 +140,21 @@ const GRNForm = forwardRef(function grnForm(
         );
 
   useEffect(() => {
-  if (!defaultValues?.supplierLocationNo) return;
-  
+  const supplierId = form.watch("supplierLocationNo");
+  if (!supplierId) return;
+
   const fetchPOs = async () => {
     try {
-      const res = await api.get(`/purchase-order/${defaultValues.supplierLocationNo}`);
-      setPoOptions(res.data as any[]);
+      const res = await api.get(`/purchase-order/${supplierId}`);
+      setPoOptions([res.data]);
     } catch {
       setPoOptions([]);
     }
   };
+
   fetchPOs();
-}, [defaultValues?.supplierLocationNo]);
+}, [form.watch("supplierLocationNo")]);
+
 
   const getErrorClass = (field: keyof ErrorData) =>
     (errData?.[field] || form.formState.errors[field]) ? "border-red-500" : "";
@@ -249,52 +267,37 @@ const GRNForm = forwardRef(function grnForm(
               <FormItem>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
-                  <Combobox value={field.value} onChange={field.onChange}>
+                  <Combobox value={field.value} onChange={(val) => {
+                    field.onChange(val); 
+                    // onSupplierChange?.(val);
+                  }}>
                     <div className="relative">
                       <Combobox.Input
                         className="w-full border border-gray-300 rounded-md p-2"
-                        onChange={(e) => {
-                          setQuery(e.target.value);
-                          field.onChange(e.target.value);
-                          onSupplierChange?.(e.target.value);
-                        }}
+                        onChange={(e) => setQuery(e.target.value)} // ✅ only filter, no override
                         displayValue={(val: string | number) => {
-                          const selectedPartner = supplierOptions.find(p => p.bpId === val);
-                          return selectedPartner 
-                            ? `${selectedPartner.bpName} (${selectedPartner.bpCode}) (${selectedPartner.bpAddress})`
-                            : "";
+                         
+                          const selected = supplierOptions.find(p => p.bpId === val);
+                          return selected ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})` : '';
                         }}
                         placeholder="Select Supplier Location"
                       />
                       {filteredSuppliers.length > 0 && (
-                        <Combobox.Options className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
-                            <Combobox.Option
-                              key={partner.bpId}
-                              value={partner.bpId}
-                              className={({ selected }) =>
-                                `cursor-pointer px-4 py-2 ${
-                                  selected ? "bg-blue-500 text-white" : "bg-white"
-                                }`
-                              }
-                            >
+                            <Combobox.Option key={partner.bpId} value={partner.bpId}>
                               {partner.bpName} ({partner.bpCode}) ({partner.bpAddress})
                             </Combobox.Option>
-                          ))} 
+                          ))}
                         </Combobox.Options>
-                      )}
-                      {filteredSuppliers.length === 0 && !loading && query !== "" && (
-                        <div className="absolute z-10 bg-white p-2 border border-gray-300 mt-1 rounded-md shadow-md text-gray-500">
-                          No results found.
-                        </div>
                       )}
                     </div>
                   </Combobox>
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             name="poNo"
             control={form.control}
@@ -302,14 +305,37 @@ const GRNForm = forwardRef(function grnForm(
               <FormItem>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
-                  <Combobox value={field.value} onChange={(val) => {
+                  <Combobox value={field.value} onChange={async(val) => {
                     field.onChange(val);
-                    onPOChange?.(val);
+                     const selectedPO = poOptions.find(po => po.poNo === val);
+                    if (!selectedPO?.poId) {
+                      console.warn("PO ID not found for selected PO No:", val);
+                      return;
+                    }
+
+                    try {
+                      const res = await api.get(`/purchase-order/${selectedPO.poId}`);
+                      if (res.data?.itemDetails) {
+                        const items = res.data.itemDetails.map((item: any) => ({
+                          itemName: item.itemName,
+                          poQuantity: item.quantity,
+                          preRecivedQuantity: 0,
+                          balance: item.quantity,
+                          recivedQuantity: 0,
+                          selected: false
+                        }));
+                        setItemDetails(items);
+                      }
+                    } catch (err) {
+                      console.error("Error fetching PO item details by ID", err);
+                      setItemDetails([]);
+                    }
+                    // onPOChange?.(val);
                   }}>
                     <div className="relative">
                       <Combobox.Input
                         className="w-full border border-gray-300 rounded-md p-2"
-                        onChange={(e) => field.onChange(e.target.value)}
+                        onChange={(e) => setQuery(e.target.value)} // ✅ only filters, not changes value
                         displayValue={(val: string) => val}
                         placeholder="Select PO No"
                       />
@@ -325,35 +351,33 @@ const GRNForm = forwardRef(function grnForm(
                     </div>
                   </Combobox>
                 </FormControl>
-                <FormMessage />
               </FormItem>
+              
             )}
           />
           <FormField
             name="challanNo"
             control={form.control}
-            render={({ field }) => {
-              console.log("field",field);
-              return(
-              <FormItem className={`flex-1 ${getErrorClass("grnNo")}`}>
+            render={({ field }) => (
+              <FormItem className={`flex-1 ${getErrorClass("challanNo")}`}>
                 <FormLabel>Challan No</FormLabel>
                 <FormControl>
-                  <Input className="w-full border bg-white rounded-md p-2"
-                    {...form.register ("grnNo", { required: true })}
+                  <Input
+                    className="w-full border bg-white rounded-md p-2"
+                    {...field}
+                    placeholder="Challan No"
+                    maxLength={6}
                     aria-invalid={errData?.challanNo ? "true" : "false"}
-                    placeholder="GRN No" {...field}
                     onChange={(e) => {
                       field.onChange(e);
-                      if (errData?.challanNo) errData.challanNo = ""; // clear this specific error
+                      if (errData?.challanNo) errData.challanNo = "";
                     }}
-                    maxLength={6} />
+                  />
                 </FormControl>
-                {/* <FormMessage /> */}
                 <div className="text-red-500 text-sm">{errData?.challanNo}</div>
               </FormItem>
-            )}}
+            )}
           />
-
           <FormField
             control={form.control}
             name="challanDate"
@@ -373,6 +397,8 @@ const GRNForm = forwardRef(function grnForm(
           />
         </div>
       </form>
+      
+      <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} />
     </Form>
   );
 });

@@ -89,8 +89,8 @@ useEffect(() => {
       grnNo: formData.grnNo,
       grnDate: formData.grnDate,
       statusNo: formData.statusNo === "Initialised" ? 1 : 2,
-      supplierLocationNo: formData.supplierLocationNo.match(/\((\d+)\)/)?.[1] || "",
-      poNo: formData.poNo.match(/\((\d+)\)/)?.[1] || "",
+      supplierLocationNo: formData.supplierLocationNo,
+      poNo: formData.poNo,
       challanNo: formData.challanNo,
       challanDate: formData.challanDate,
       itemDetails: selectedItems,
@@ -185,28 +185,28 @@ useEffect(() => {
     navigate("/grn-search");
   };
 
-  const handleSupplierChange = (supplierLocationNo: string) => {
-  formRef.current?.reset();
-  setItemDetails([]);
-};
+//   const handleSupplierChange = (supplierLocationNo: string) => {
+//   formRef.current?.reset();
+//   setItemDetails([]);
+// };
 
-  const handlePOChange = async (poNo: string) => {
-    try {
-      const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`);
-      const items = res.data.map((item: any) => ({
-        itemName: item.itemName,
-        poQuantity: item.poQuantity,
-        preRecivedQuantity: item.preRecivedQuantity || 0,
-        balance: item.poQuantity - (item.preRecivedQuantity || 0),
-        recivedQuantity: 0,
-        selected: false
-      }));
-      setItemDetails(items);
-    } catch (err) {
-      toast.error("Failed to load item details");
-      setItemDetails([]);
-    }
-  };
+//   const handlePOChange = async (poNo: string) => {
+//     try {
+//       const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`);
+//       const items = res.data.map((item: any) => ({
+//         itemName: item.itemName,
+//         poQuantity: item.poQuantity,
+//         preRecivedQuantity: item.preRecivedQuantity || 0,
+//         balance: item.poQuantity - (item.preRecivedQuantity || 0),
+//         recivedQuantity: 0,
+//         selected: false
+//       }));
+//       setItemDetails(items);
+//     } catch (err) {
+//       toast.error("Failed to load item details");
+//       setItemDetails([]);
+//     }
+//   };
 
 
   // const handleAddItem = () => {
@@ -299,8 +299,10 @@ useEffect(() => {
           isEdit={!!editItem}
           
           errData={errData}
-          onSupplierChange={handleSupplierChange}
-          onPOChange={handlePOChange}
+          itemDetails={itemDetails}
+          setItemDetails={setItemDetails}
+          //onSupplierChange={handleSupplierChange}
+          //onPOChange={handlePOChange}
         />
       {/* </form> */}
 
@@ -323,9 +325,9 @@ useEffect(() => {
         </Dialog>
       )} */}
 
-      <div className="my-6">
+      {/* <div className="my-6">
         <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} />
-      </div>
+      </div> */}
 
       <Dialog open={openDialog} onOpenChange={handleDialogClose}>
         <DialogContent className="p-6">

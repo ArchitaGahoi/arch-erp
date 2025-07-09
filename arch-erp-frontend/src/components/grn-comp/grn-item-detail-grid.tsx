@@ -25,6 +25,9 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
   return (
     <div className="bg-white p-4 rounded-lg shadow mt-4">
       <h2 className="text-lg font-bold mb-2">Item Details</h2>
+      {itemDetails.length === 0 ? (
+        <div className="text-gray-500 text-sm italic">No item details available. Please select a PO.</div>
+      ) : (
       <table className="table-auto w-full">
         <thead>
           <tr className="bg-gray-100 text-left">
@@ -35,7 +38,6 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
             <th className="p-2 border">Pre Recived Quantity</th>
             <th className="p-2 border">Balance</th>
             <th className="p-2 border">Recived Quantity</th>
-            <th className="p-2 border">Action</th> 
           </tr>
         </thead>
         <tbody>
@@ -60,7 +62,25 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
               <td>{item.poQuantity}</td>
               <td>{item.preRecivedQuantity}</td>
               <td>{item.balance}</td>
-              <td>{item.recivedQuantity}</td>
+              <td><input
+                  type="number"
+                  min={0}
+                  max={item.poQuantity - item.preRecivedQuantity}
+                  value={item.recivedQuantity}
+                  onChange={(e) => {
+                    const inputQty = Number(e.target.value);
+                    const maxQty = item.poQuantity - item.preRecivedQuantity;
+
+                    if (inputQty > maxQty) return alert("Received quantity exceeds PO balance");
+
+                    const updated = [...itemDetails];
+                    updated[index].recivedQuantity = inputQty;
+                    updated[index].balance = item.poQuantity - (item.preRecivedQuantity + inputQty);
+                    setItemDetails(updated);
+                  }}
+                  className="border rounded p-1 w-full"
+                />
+              </td>
               {/* <td>
                 <Button variant="outline" onClick={() => handleDelete(index)}>
                   Delete
@@ -70,6 +90,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
           ))}
         </tbody>
       </table>
+      )}
     </div>
   );
 };
