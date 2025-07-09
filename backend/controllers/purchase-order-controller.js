@@ -198,6 +198,8 @@ exports.updatePurchaseOrder = (req, res) => {
     }
   });
 
+  
+
   function doUpdate() {
     const sql = `
       UPDATE PurchaseOrder SET 

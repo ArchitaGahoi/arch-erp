@@ -94,7 +94,7 @@ useEffect(() => {
       poNo: formData.poNo,
       poDate: formData.poDate,
       statusNo: formData.statusNo === "Initialised" ? 1 : 2,
-      supplierLocationNo: formData.supplierLocationNo.match(/\((\d+)\)/)?.[1] || "",
+      supplierLocationNo: formData.supplierLocationNo,
       itemDetails,
       taxDetails,
       netAmount,  
