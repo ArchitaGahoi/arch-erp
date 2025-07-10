@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useEffect } from 'react';
 
 interface ItemDetail {
   itemName: string;
@@ -12,14 +13,22 @@ interface Props {
   itemDetails: ItemDetail[];
   setItemDetails: (items: ItemDetail[]) => void;
   onRowClick?: (item: ItemDetail) => void;
+  onTotalChange?: (total: number) => void;
 }
 
-const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => {
+const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange  }: Props) => {
   const handleDelete = (index: number) => {
     const updated = [...itemDetails];
     updated.splice(index, 1);
     setItemDetails(updated);
   };
+
+  const total = itemDetails.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+
+  useEffect(() => {
+    onTotalChange?.(total);
+  }, [itemDetails]);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow mt-4">
@@ -58,9 +67,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
         </tbody>
       </table>
       <p className="font-semibold mt-2 flex justify-end">
-        Total Item Amount: {itemDetails
-          .reduce((sum, item) => sum + Number(item.amount || 0), 0)
-          .toFixed(2)};
+        Total Item Amount: {{total.toFixed(2)}}
       </p>
     </div>
   );
