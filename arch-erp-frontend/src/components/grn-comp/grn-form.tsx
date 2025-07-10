@@ -23,6 +23,7 @@ const formSchema = z.object({
     message: "Status is required",
   }),
   supplierLocationNo: z.string().min(1, "Supplier Location is required"),
+  supplierLocationLabel: z.string().optional(),
   poNo: z.string().min(1, "PO No is required"),
   challanNo: z.string().min(1, "Challan No is required").max(6, "Challan No must be 6 characters long"),
   challanDate: z.date().min(new Date(), "Challan Date must be today or before"),
@@ -67,9 +68,10 @@ interface ItemDetail {
 
 
 const GRNForm = forwardRef(function grnForm(
-  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },  errData, itemDetails, setItemDetails}: grnFormProps,
+  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },isEdit,  errData, itemDetails, setItemDetails}: grnFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
+  console.log("defaultValues----", defaultValues)
   const form = useForm<grnFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues || {
@@ -83,11 +85,11 @@ const GRNForm = forwardRef(function grnForm(
     },
   });
 
-  // useEffect(() => {
-  //   if (defaultValues) {
-  //     form.reset(defaultValues);
-  //   }
-  // }, [defaultValues]);
+  useEffect(() => {
+    if (defaultValues && isEdit) {
+      form.reset(defaultValues);
+    }
+  }, []);
 
   useImperativeHandle(ref, () => ({
     reset: () =>
@@ -159,7 +161,7 @@ const GRNForm = forwardRef(function grnForm(
 
   const getErrorClass = (field: keyof ErrorData) =>
     (errData?.[field] || form.formState.errors[field]) ? "border-red-500" : "";
-
+  console.log("field",form);
   return (
     <Form {...form}>
       <form className="grid gap-4 bg-white p-4 rounded-lg shadow mb-4">
@@ -168,12 +170,14 @@ const GRNForm = forwardRef(function grnForm(
             name="grnNo"
             control={form.control}
             render={({ field }) => {
-              console.log("field",field);
+              
               return(
               <FormItem className={`flex-1 ${getErrorClass("grnNo")}`}>
                 <FormLabel>GRN No</FormLabel>
                 <FormControl>
+                  
                   <Input className="w-full border bg-white rounded-md p-2"
+
                     {...form.register ("grnNo", { required: true })}
                     aria-invalid={errData?.grnNo ? "true" : "false"}
                     placeholder="GRN No" {...field}
@@ -274,12 +278,16 @@ const GRNForm = forwardRef(function grnForm(
                   }}>
                     <div className="relative">
                       <Combobox.Input
+                        {...form.register ("supplierLocationNo", { required: true })}
+                        aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className="w-full border border-gray-300 rounded-md p-2"
                         onChange={(e) => setQuery(e.target.value)} // ✅ only filter, no override
                         displayValue={(val: string | number) => {
-                         
+                          if (!val) return '';
                           const selected = supplierOptions.find(p => p.bpId === val);
-                          return selected ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})` : '';
+                          return selected
+                            ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})`
+                            : (defaultValues?.supplierLocationLabel || '');
                         }}
                         placeholder="Select Supplier Location"
                       />
@@ -295,6 +303,7 @@ const GRNForm = forwardRef(function grnForm(
                     </div>
                   </Combobox>
                 </FormControl>
+                <div className="text-red-500 text-sm">{errData?.supplierLocationNo}</div>
               </FormItem>
             )}
           />
@@ -318,12 +327,12 @@ const GRNForm = forwardRef(function grnForm(
                       const res = await api.get(`/purchase-order/${selectedPO.poId}`);
                       if (res.data?.itemDetails) {
                         const items = res.data.itemDetails.map((item: any) => ({
-                        poitemDetailId: item.poitemDetailId,   // ✅ Required for saving
+                        poitemDetailId: item.itemDetailId,   
                         itemName: item.itemName,
-                        poQuantity: item.quantity,           // ✅ match backend field
+                        poQuantity: item.quantity,          
                         preRecivedQuantity: item.preRecivedQuantity || 0,
                         balance: (item.quantity - item.preRecivedQuantity) || item.quantity,
-                        recivedQuantity: 0,
+                        recivedQuantity: item.recivedQuantity || 0,
                         selected: false
                       }));
 
@@ -368,6 +377,7 @@ const GRNForm = forwardRef(function grnForm(
                   <Input
                     className="w-full border bg-white rounded-md p-2"
                     {...field}
+                    value={field.value || ""}
                     placeholder="Challan No"
                     maxLength={6}
                     aria-invalid={errData?.challanNo ? "true" : "false"}

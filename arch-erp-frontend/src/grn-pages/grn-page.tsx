@@ -50,9 +50,23 @@ export default function GRNPage() {
   
 useEffect(() => {
   if (location.state?.editItem) {
-    const fullData = location.state.editItem;
-    setEditItem(fullData);
-    setItemDetails(fullData.itemDetails || []);
+    const grnFullData = location.state.editItem;
+    console.log("grnFullData--->", grnFullData) 
+    const enrichedEditItem = {
+    ...grnFullData,
+    supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
+    };
+    const mappedItems = (grnFullData.itemDetails || []).map((item: any) => ({
+      poitemDetailId: item.poitemDetailId,
+      itemName: item.itemName,
+      poQuantity: item.poQuantity,
+      preRecivedQuantity: item.preRecivedQuantity || 0,
+      recivedQuantity: item.recievedQty || 0,
+      balance: item.poQuantity - ((item.preRecivedQuantity || 0) + (item.recievedQty || 0)),
+      selected: true
+    }));
+    setEditItem(enrichedEditItem);
+    setItemDetails(mappedItems);
     // setTaxDetails(fullData.taxDetails || []);
     // setNetAmount(Number(fullData.netAmount) || 0);
   }
@@ -77,43 +91,51 @@ useEffect(() => {
   //   fetchItems();
   // }, []);
 
+    const formatDateTime = (date: Date): string => {
+    if (!date) return "";
+    return new Date(date).toISOString().slice(0, 19).replace("T", " ");
+  };
+
   const handleFormSubmit = async (data: GRN) => {
-    const formData = formRef.current?.getValues();
+    console.log("forsubmit");
+    const grnFormData = { ...formRef.current?.getValues() };
+    if (!grnFormData) return;
     const selectedItems = itemDetails.filter(item => item.selected);
 
-    const hasInvalidItems = selectedItems.some(
-    item => !item.poitemDetailId || item.recivedQuantity == null
-  );
+  //   const hasInvalidItems = selectedItems.some(
+  //   item => !item.poitemDetailId || item.recivedQuantity == null
+  // );
 
-  if (hasInvalidItems) {
-    toast.error("Please select valid items with received quantity before saving.");
-    return;
-  }
+  // if (hasInvalidItems) {
+  //   toast.error("Please select valid items with received quantity before saving.");
+  //   return;
+  // }
 
-    // if (!formData.poNo) errors.poNo = "PO No is required";
-    // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
-    function formatDateTime(date: Date): string {
-      return date.toISOString().slice(0, 19).replace("T", " ");
-    } 
+    // if (!grnFormData.poNo) errors.poNo = "PO No is required";
+    // if (!grnFormData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
     console.log("sdfgbn....",data);
     const finalData = {
-      grnNo: formData.grnNo,
-      grnDate: formatDateTime(new Date(formData.grnDate)),
-      statusNo: formData.statusNo === "Initialised" ? 1 : 2,
-      supplierLocationNo: formData.supplierLocationNo,
-      poNo: formData.poNo,
-      challanNo: formData.challanNo,
-      challanDate: formatDateTime(new Date(formData.challanDate)),
-      itemDetails: selectedItems,
+      grnNo: grnFormData.grnNo,
+      grnDate: formatDateTime(new Date(grnFormData.grnDate)),
+      statusNo: grnFormData.statusNo === "Initialised" ? 1 : 2,
+      supplierLocationNo: grnFormData.supplierLocationNo,
+      poNo: grnFormData.poNo,
+      challanNo: grnFormData.challanNo,
+      challanDate: formatDateTime(new Date(grnFormData.challanDate)),
+      itemDetails: selectedItems.map(item => ({
+      poitemDetailId: item.poitemDetailId,
+      recievedQty: item.recivedQuantity
+    })),
       createdDate: formatDateTime(new Date()),
 
-      // taxDetails: formData.taxDetails,
-      // netAmount: formData.netAmount
+      // taxDetails: grnFormData.taxDetails,
+      // netAmount: grnFormData.netAmount
     };
-
-    console.log(finalData);
+    console.log("asdfghjk",finalData);
+    
     try {
-      if (editItem?.grnId) {
+      if (editItem && editItem?.grnId) {
+        console.log("asdf",finalData)
         await api.put(`/grn/${editItem.grnId}`,finalData, {
            headers: {
             Authorization: `Bearer ${token}`,
@@ -121,7 +143,7 @@ useEffect(() => {
       });
         toast.success("GRN updated successfully");
       } else {
-        console.log(itemDetails)
+        console.log("asdf",itemDetails)
         await api.post("/grn", finalData, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -134,7 +156,9 @@ useEffect(() => {
     } catch (err: Error | any) {
       console.error(err);
       setErrData(()=>{
-        return {poNo : err.response.data.message};
+        return {grnNo : err.response.data.message,
+
+        };
       })
       return;
       // const message =
@@ -142,7 +166,7 @@ useEffect(() => {
       // toast.error(message);
     }
     setEditItem(null); // Clear form after save/update
-    // formRef.current?.reset();
+    //formRef.current?.reset();
     
     setItemDetails([]);
 
@@ -151,8 +175,8 @@ useEffect(() => {
 
   const handleSave = () => {
     if (!formRef.current) return;
-    const formData = formRef.current.getValues();
-    handleFormSubmit({ ...formData });
+    const grnFormData = formRef.current.getValues();
+    handleFormSubmit(grnFormData);
   };
 
   // Clear and add new entry on click + button
@@ -162,7 +186,7 @@ useEffect(() => {
     setItemDetails([]);
     formRef.current?.reset();
     console.log("clear")
-    //setErrData({});
+    setErrData({});
   }
   // const handleSave = () => {
   //   const form = document.querySelector<HTMLFormElement>("#purchase-order-form");
@@ -260,13 +284,13 @@ useEffect(() => {
         id="purchase-order-form"
         onSubmit={(e) => {
           e.preventDefault();
-          const formData = new FormData(e.currentTarget);
+          const grnFormData = new grnFormData(e.currentTarget);
 
           const data: PO = {
-            poNo: formData.get("poNo") as string,
-            poDate: new Date(formData.get("poDate") as string),
-            statusNo: formData.get("statusNo") as "Initialised" | "Authorised",
-            supplierLocationNo: formData.get("supplierLocationNo") as string,
+            poNo: grnFormData.get("poNo") as string,
+            poDate: new Date(grnFormData.get("poDate") as string),
+            statusNo: grnFormData.get("statusNo") as "Initialised" | "Authorised",
+            supplierLocationNo: grnFormData.get("supplierLocationNo") as string,
             netAmount: netAmount, // from state
           };
 
@@ -292,6 +316,7 @@ useEffect(() => {
       />
         
         <GRNForm
+          key={editItem ? `edit-${editItem.grnId}` : "new"}
           ref={formRef}
           
           defaultValues={
@@ -300,8 +325,9 @@ useEffect(() => {
               ? {                
                 grnNo: editItem.grnNo,
                 grnDate: new Date(editItem.grnDate),
-                statusNo: editItem.statusNo as "Initialised" | "Authorised",
+                statusNo: ((editItem.statusNo === 1 ? "Initialised" : "Authorised") as "Initialised" | "Authorised"),
                 supplierLocationNo: String(editItem.supplierLocationNo) || "",
+                supplierLocationLabel: editItem.supplierLocationLabel || "",
                 poNo: String(editItem.poNo) || "",
                 challanNo: String(editItem.challanNo) || "",
                 challanDate: new Date(editItem.challanDate)
@@ -312,7 +338,7 @@ useEffect(() => {
           isEdit={!!editItem}
           
           errData={errData}
-          itemDetails={itemDetails}
+           itemDetails={itemDetails}
           setItemDetails={setItemDetails}
           //onSupplierChange={handleSupplierChange}
           //onPOChange={handlePOChange}
@@ -378,6 +404,7 @@ useEffect(() => {
     
   );
 }
+
 
 
 

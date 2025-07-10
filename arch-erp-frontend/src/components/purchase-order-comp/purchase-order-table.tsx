@@ -8,7 +8,7 @@ interface PurchaseOrderTableProps {
 const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
     const statusNoes = [
     { label: "Initialised", value: 1 },
-    { label: "Approved", value: 2 },
+    { label: "Authorised", value: 2 },
   ];
 
   
@@ -18,6 +18,7 @@ const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
       <thead className="bg-gray-100">
         <tr>
           <th className="p-2 border">Sr No.</th>
+          <th className="p-2 border">PO No</th>
           <th className="p-2 border">PO Date</th>
           <th className="p-2 border">Status</th>
           <th className="p-2 border">Supplier Location</th>
@@ -31,6 +32,7 @@ const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
           return(
           <tr key={order.poId}>
             <td className="p-2 border">{index + 1}</td>
+            <td className="p-2 border">{order.poNo}</td>
             <td className="p-2 border">{order.poDate.toLocaleString()}</td>
             <td className="p-2 border">{statusNo?.label}</td>
             <td className="p-2 border">{order.supplierLocationLabel || order.supplierLocationNo}</td>

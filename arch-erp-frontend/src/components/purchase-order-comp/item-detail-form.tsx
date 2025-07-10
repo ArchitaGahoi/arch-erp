@@ -147,8 +147,8 @@ const ItemDetailForm = ({ addItemToGrid }: Props) => {
         <label className="block text-sm font-medium text-gray-700">Quantity</label>
         <NumericInput
           value={quantity}
-          length={[6, 0]}
-          isDecimal={false}
+          length={[9, 3]}
+          isDecimal={true}
           isAbsolute={true}
           onChange={(val) => setQuantity(Number(val))}
           className="w-full border border-gray-300 rounded-md px-3 py-2"

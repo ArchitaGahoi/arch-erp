@@ -57,8 +57,12 @@ export default function PurchaseOrderPage() {
 useEffect(() => {
   if (location.state?.editItem) {
     const fullData = location.state.editItem;
-    setEditItem(fullData);
-    setItemDetails(fullData.itemDetails || []);
+    const enrichedEditItem = {
+      ...fullData,
+      supplierLocationLabel: `${fullData.bpName} (${fullData.bpCode}) (${fullData.bpAddress})`,
+    };
+    setEditItem(enrichedEditItem);
+    setItemDetails(fullData.itemDetails || []);   
     setTaxDetails(fullData.taxDetails || []);
     setNetAmount(Number(fullData.netAmount) || 0);
   }
@@ -122,7 +126,10 @@ useEffect(() => {
     } catch (err: Error | any) {
       console.error(err);
       setErrData(()=>{
-        return {poNo : err.response.data.message};
+        return {poNo : err.response.data.message,
+          statusNo : err.response.data.message,
+          supplierLocationNo : err.response.data.message,
+        };
       })
       return;
       // const message =
@@ -153,7 +160,7 @@ useEffect(() => {
     setNetAmount(0);
     formRef.current?.reset();
     console.log("clear")
-    //setErrData({});
+    setErrData({});
   }
   // const handleSave = () => {
   //   const form = document.querySelector<HTMLFormElement>("#purchase-order-form");
@@ -261,6 +268,7 @@ useEffect(() => {
       />
         
         <PurchaseOrderForm
+          key={editItem ? `edit-${editItem.poId}` : "new"}
           ref={formRef}
           
           defaultValues={
@@ -269,8 +277,10 @@ useEffect(() => {
               ? {                
                 poNo: editItem.poNo,
                 poDate: new Date(editItem.poDate),
-                statusNo: editItem.statusNo as "Initialised" | "Authorised",
+                statusNo: ((editItem.statusNo === 1 ? "Initialised" : "Authorised") as "Initialised" | "Authorised"),
+
                 supplierLocationNo: String(editItem.supplierLocationNo) || "",
+                supplierLocationLabel: editItem.supplierLocationLabel || "",
               }
               : undefined
           }

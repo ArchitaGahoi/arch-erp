@@ -1,6 +1,6 @@
 const db = require("../config/db");
 
-// 🔐 Helper: Get pre-received quantity for an item in a PO
+//  Helper: Get pre-received quantity for an item in a PO
 const getPreReceivedQty = (poItemDetailId) => {
   return new Promise((resolve, reject) => {
     const sql = `
@@ -15,64 +15,81 @@ const getPreReceivedQty = (poItemDetailId) => {
   });
 };
 
-// ✅ CREATE GRN
-exports.createGRN = async (req, res) => {
-  try {
-    const {
-      grnNo, grnDate, statusNo, supplierLocationNo, poNo,
-      challanNo, challanDate, itemDetails
-    } = req.body;
+//  CREATE GRN
+exports.createGRN = (req, res) => {
+  const {
+    grnNo, grnDate, statusNo, supplierLocationNo, poNo,
+    challanNo, challanDate, itemDetails
+  } = req.body;
 
-    const createdBy = req.user.id;
-    const createdDate = new Date();
+  const createdBy = req.user.id;
+  const createdDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-    if (!grnNo || !grnDate || !supplierLocationNo || !poNo || !challanNo || !challanDate) {
-      return res.status(400).json({ message: "Missing fields" });
+  if (!grnNo || !grnDate || !statusNo || !supplierLocationNo || !poNo || !challanNo || !challanDate) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  // Check for duplicate GRN No
+  const checkSql = "SELECT grnId FROM GRN WHERE grnNo = ?";
+  db.query(checkSql, [grnNo], (err, rows) => {
+    if (err) {
+      console.error("DB Error (Check GRN No):", err);
+      return res.status(500).json({ message: "DB error", error: err });
     }
 
-    // 🔄 Check for duplicate GRN No
-    const checkSql = "SELECT grnId FROM GRN WHERE grnNo = ?";
-    const existing = await new Promise((resolve, reject) =>
-      db.query(checkSql, [grnNo], (err, result) => err ? reject(err) : resolve(result))
-    );
-    if (existing.length > 0) {
-      return res.status(400).json({ message: "GRN No already exists" });
+    if (rows.length > 0) {
+      return res.status(400).json({ message: "GRN Number must be unique" });
     }
 
-    // ✅ Insert GRN
+    // Insert GRN Header
     const insertSql = `
       INSERT INTO GRN (grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
-    const grnResult = await new Promise((resolve, reject) =>
-      db.query(insertSql, [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate],
-        (err, result) => err ? reject(err) : resolve(result))
+
+    db.query(
+      insertSql,
+      [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate],
+      (err, result) => {
+        if (err) {
+          console.error("DB Error (Insert GRN):", err);
+          return res.status(500).json({ message: "Insert failed", error: err });
+        }
+
+        const grnId = result.insertId;
+
+        // Validate item details
+        if (!Array.isArray(itemDetails) || itemDetails.length === 0) {
+          return res.status(400).json({ message: "At least one item detail is required" });
+        }
+
+        // Insert GRN item details
+        for (let i = 0; i < itemDetails.length; i++) {
+          const item = itemDetails[i];
+          const itemSql = `
+            INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty)
+            VALUES (?, ?, ?)
+          `;
+
+          db.query(itemSql, [grnId, item.poitemDetailId, item.recievedQty], (err) => {
+            if (err) {
+              console.error("DB Error (Insert GRN Item):", err);
+              return res.status(500).json({ message: "Item insert failed", error: err });
+            }
+          });
+        }
+
+        // Final response
+        res.json({ message: "GRN created successfully", grnId });
+      }
     );
-    const grnId = grnResult.insertId;
-
-    // ✅ Insert GRN Item Details
-    for (const item of itemDetails) {
-      const { poitemDetailId, recievedQty } = item;
-
-      const insertItemSql = `
-        INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty)
-        VALUES (?, ?, ?)
-      `;
-      await new Promise((resolve, reject) =>
-        db.query(insertItemSql, [grnId, poitemDetailId, recievedQty], (err) =>
-          err ? reject(err) : resolve())
-      );
-    }
-
-    res.json({ message: "GRN created successfully", grnId });
-
-  } catch (err) {
-    console.error("GRN Create Error:", err);
-    res.status(500).json({ message: "Server error", error: err });
-  }
+  });
 };
 
-// ✅ GET ALL GRNs
+
+
+
+// GET ALL GRNs
 exports.getAllGRNs = (req, res) => {
   const sql = "SELECT * FROM GRN";
   db.query(sql, (err, result) => {
@@ -81,10 +98,15 @@ exports.getAllGRNs = (req, res) => {
   });
 };
 
-// ✅ GET GRN BY ID (with itemDetails)
+// GET GRN BY ID (with itemDetails)
 exports.getGRNById = (req, res) => {
   const grnId = req.params.id;
-  const grnSql = "SELECT * FROM GRN WHERE grnId = ?";
+  const grnSql = `
+    SELECT g.*, bp.bpName, bp.bpCode, bp.bpAddress
+    FROM GRN g
+    JOIN BusinessPartner bp ON g.supplierLocationNo = bp.bpId
+    WHERE g.grnId = ?
+  `;
   const itemSql = `
     SELECT 
       g.*, 
@@ -111,7 +133,7 @@ exports.getGRNById = (req, res) => {
   });
 };
 
-// ✅ DELETE GRN
+// DELETE GRN
 exports.deleteGRN = (req, res) => {
   const grnId = req.params.id;
 
@@ -128,7 +150,7 @@ exports.deleteGRN = (req, res) => {
   });
 };
 
-// ✅ UPDATE GRN
+// UPDATE GRN
 exports.updateGRN = async (req, res) => {
   const grnId = req.params.id;
   const {
@@ -171,7 +193,7 @@ exports.updateGRN = async (req, res) => {
   });
 };
 
-// ✅ PO item fetch for GRN creation
+// PO item fetch for GRN creation
 exports.getPOItemsForGRN = async (req, res) => {
   const poNo = req.params.poNo;
 

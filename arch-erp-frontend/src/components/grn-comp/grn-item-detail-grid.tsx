@@ -59,7 +59,9 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
                 />
               </td>
               <td>{item.itemName}</td>
-              <td>{item.poQuantity}</td>
+              <td>{item.poQuantity}
+                
+              </td>
               <td>{item.preRecivedQuantity}</td>
               <td>{item.balance}</td>
               <td><input

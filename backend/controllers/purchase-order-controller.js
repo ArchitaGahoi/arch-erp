@@ -19,19 +19,19 @@ exports.createPurchaseOrder = (req, res) => {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-  // ✅ Map status string to numeric value
+  // Map status string to numeric value
   let statusValue;
-  if (statusNo === "Initialised") statusValue = 1;
-  else if (statusNo === "Authorised") statusValue = 2;
-  else return res.status(400).json({ message: "Invalid status" });
+  if (statusNo === 1) statusValue = 1;
+  else if (statusNo === 2) statusValue = 2;
+  else return res.status(400).json({statusNo: message =  "Invalid status" });
 
-  // ✅ Extract numeric supplier location ID
+  // Extract numeric supplier location ID
   if (isNaN(supplierLocationNo)) {
     return res.status(400).json({ message: "Invalid Supplier Location" });
   }
   const supplierLocationId = parseInt(supplierLocationNo);
 
-  // ✅ Format poDate properly
+  // Format poDate properly
   const formattedPoDate = new Date(poDate).toISOString().slice(0, 10); // YYYY-MM-DD
 
   // Step 1: Check for unique PO number
@@ -123,7 +123,7 @@ exports.getAllPurchaseOrders = (req, res) => {
 // Get Purchase Order by ID (with items and tax)
 exports.getPurchaseOrderById = (req, res) => {
   const { id } = req.params;
-  const poQuery = 'SELECT po.*, bp.bpId, bp.bpName, bp.bpCode, bp.bpAddress FROM PurchaseOrder po JOIN BusinessPartner bp ON po.supplierLocationNo = bp.bpId WHERE po.poId = ?';
+  const poQuery = 'SELECT po.*, bp.bpName, bp.bpCode, bp.bpAddress FROM PurchaseOrder po JOIN BusinessPartner bp ON po.supplierLocationNo = bp.bpId WHERE po.poId = ?';
   const itemQuery = `SELECT pod.*, im.itemName, im.unit FROM PurchaseOrderItemDetail pod JOIN ItemMaster im ON pod.itemId = im.itemId WHERE pod.poId = ?
   `;
   const taxQuery = 'SELECT * FROM PurchaseOrderTaxDetail WHERE poId = ?';
@@ -212,9 +212,7 @@ exports.updatePurchaseOrder = (req, res) => {
       [poNo, poDate, statusNo, supplierLocationNo, netAmount, modifiedBy, modifiedDate, id],
       (err) => {
         if (err)
-          return res
-            .status(500)
-            .json({ message: "Update failed (PO Header)", err });
+          return res.status(500).json({ message: "Update failed (PO Header)", err });
 
         // Delete existing item and tax details
         const deleteItems = "DELETE FROM PurchaseOrderItemDetail WHERE poId = ?";

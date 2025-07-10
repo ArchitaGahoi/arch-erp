@@ -22,6 +22,7 @@ const formSchema = z.object({
     message: "PO Status is required",
   }),
   supplierLocationNo: z.string().min(1, "Supplier Location is required"),
+  supplierLocationLabel: z.string().optional(),
 });
 
 export type purchaseOrderFormData = z.infer<typeof formSchema>;
@@ -45,7 +46,7 @@ interface ErrorData {
 
 
 const purchaseOrderForm = forwardRef(function purchaseOrderForm(
-  { defaultValues = { poNo: "", poDate: new Date(), statusNo: "Initialised", supplierLocationNo: "" },  errData }: purchaseOrderFormProps,
+  { defaultValues = { poNo: "", poDate: new Date(), statusNo: "Initialised", supplierLocationNo: "" }, isEdit , errData }: purchaseOrderFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   const form = useForm<purchaseOrderFormData>({
@@ -58,11 +59,11 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
     },
   });
 
-  // useEffect(() => {
-  //   if (defaultValues) {
-  //     form.reset(defaultValues);
-  //   }
-  // }, [defaultValues]);
+  useEffect(() => {
+    if (defaultValues && isEdit) {
+      form.reset(defaultValues);
+    }
+  }, []);
 
   useImperativeHandle(ref, () => ({
     reset: () =>
@@ -223,16 +224,19 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                   <Combobox value={field.value} onChange={field.onChange}>
                     <div className="relative">
                       <Combobox.Input
+                        // {...form.register ("supplierLocationNo", { required: true })}
+                        // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className="w-full border border-gray-300 rounded-md p-2"
                         onChange={(e) => {
                           setQuery(e.target.value);
                           field.onChange(e.target.value);
+                          if (errData?.poNo) errData.poNo = "";
                         }}
                         displayValue={(val: string | number) => {
                           const selectedPartner = supplierOptions.find(p => p.bpId === val);
                           return selectedPartner 
                             ? `${selectedPartner.bpName} (${selectedPartner.bpCode}) (${selectedPartner.bpAddress})`
-                            : "";
+                            : (defaultValues?.supplierLocationLabel || '');
                         }}
                         placeholder="Select Supplier Location"
                       />
@@ -261,6 +265,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     </div>
                   </Combobox>
                 </FormControl>
+                {/* <div className="text-red-500 text-sm">{errData?.supplierLocationNo}</div> */}
                 <FormMessage />
               </FormItem>
             )}
