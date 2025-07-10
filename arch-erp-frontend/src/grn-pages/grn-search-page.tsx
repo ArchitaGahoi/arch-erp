@@ -40,7 +40,7 @@ const handleEdit = async (receipt: GRN) => {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Search Good Receipt Note</h2>
+        <h2 className="text-xl font-semibold">Search Goods Receipt Note</h2>
         <div className="space-x-2">
           <Button onClick={handleAdd} variant="outline">Add</Button>
         </div>

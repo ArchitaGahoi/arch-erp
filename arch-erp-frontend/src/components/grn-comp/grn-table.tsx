@@ -18,6 +18,7 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
       <thead className="bg-gray-100">
         <tr>
           <th className="p-2 border">Sr No.</th>
+          <th className="p-2 border">GRN No.</th>
           <th className="p-2 border">GRN Date</th>
           <th className="p-2 border">Status</th>
           <th className="p-2 border">Supplier Location</th>
@@ -33,6 +34,7 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
           return(
           <tr key={receipt.grnId}>
             <td className="p-2 border">{index + 1}</td>
+            <td className="p-2 border">{receipt.grnNo}</td>
             <td className="p-2 border">{receipt.grnDate.toLocaleString()}</td>
             <td className="p-2 border">{statusNo?.label}</td>
             <td className="p-2 border">{receipt.supplierLocationLabel || receipt.supplierLocationNo}</td>

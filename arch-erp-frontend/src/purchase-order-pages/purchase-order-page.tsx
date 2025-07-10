@@ -68,11 +68,15 @@ useEffect(() => {
   }
 }, [location.state]);
 
-  useEffect(() => {
-    const totalItemAmount = itemDetails.reduce((prev, curr) => prev + curr.amount, 0);
-    const totalTaxAmount = taxDetails.reduce((prev, curr) => prev + curr.amount, 0);
-    setNetAmount(totalItemAmount + totalTaxAmount);
-  }, [itemDetails, taxDetails]);
+useEffect(() => {
+  const totalItemAmount = itemDetails.reduce((prev, curr) => prev + curr.amount, 0);
+  const totalTaxAmount = taxDetails.reduce((prev, curr) => {
+    return prev + (curr.nature === "Add" ? curr.amount : -curr.amount);
+  }, 0);
+  setNetAmount(totalItemAmount + totalTaxAmount);
+}, [itemDetails, taxDetails]);
+  
+
 
   // useEffect(() => {
   //   const fetchItems = async () => {

@@ -157,7 +157,9 @@ useEffect(() => {
       console.error(err);
       setErrData(()=>{
         return {grnNo : err.response.data.message,
-
+            supplierLocationNo : err.response.data.message,
+            poNo : err.response.data.message,
+            challanNo : err.response.data.message
         };
       })
       return;

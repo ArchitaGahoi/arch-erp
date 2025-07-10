@@ -281,7 +281,10 @@ const GRNForm = forwardRef(function grnForm(
                         {...form.register ("supplierLocationNo", { required: true })}
                         aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className="w-full border border-gray-300 rounded-md p-2"
-                        onChange={(e) => setQuery(e.target.value)} // ✅ only filter, no override
+                        onChange={(e) => {
+                          setQuery(e.target.value);
+                          if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
+                        }}// 
                         displayValue={(val: string | number) => {
                           if (!val) return '';
                           const selected = supplierOptions.find(p => p.bpId === val);
@@ -315,7 +318,10 @@ const GRNForm = forwardRef(function grnForm(
               <FormItem>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
-                  <Combobox value={field.value} onChange={async(val) => {
+                  <Combobox 
+                    {...form.register ("poNo", { required: true })}
+                    aria-invalid={errData?.poNo ? "true" : "false"}
+                    value={field.value} onChange={async(val) => {
                     field.onChange(val);
                      const selectedPO = poOptions.find(po => po.poNo === val);
                     if (!selectedPO?.poId) {
@@ -363,6 +369,7 @@ const GRNForm = forwardRef(function grnForm(
                     </div>
                   </Combobox>
                 </FormControl>
+                <div className="text-red-500 text-sm">{errData?.poNo}</div>
               </FormItem>
               
             )}
@@ -380,6 +387,7 @@ const GRNForm = forwardRef(function grnForm(
                     value={field.value || ""}
                     placeholder="Challan No"
                     maxLength={6}
+                    {...form.register ("challanNo", { required: true })}
                     aria-invalid={errData?.challanNo ? "true" : "false"}
                     onChange={(e) => {
                       field.onChange(e);
