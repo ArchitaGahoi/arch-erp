@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Combobox } from "@headlessui/react";
 import NumericInput from "@/components/purchase-order-comp/NumericInput";
 
@@ -14,9 +14,10 @@ interface Props {
   taxDetails: TaxDetail[];
   setTaxDetails: (items: TaxDetail[]) => void;
   onRowClick?: (items: TaxDetail) => void;
+  onTotalChange?: (total: number) => void;
 }
 
-const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick }: Props) => {
+const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange }: Props) => {
   const [editableRows, setEditableRows] = useState<TaxDetail[]>([
     { taxName: "", nature: 1, amount: 0 },
   ]);
@@ -27,7 +28,18 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick }: Props) => {
       return sum + (tax.nature === 1 ? tax.amount : -tax.amount);
     }, 0);
     setTotalAmount(total);
+    onTotalChange?.(total);
   };
+
+  useEffect(() => {
+  if (taxDetails && taxDetails.length > 0) {
+    const total = taxDetails.reduce((sum, tax) => {
+      return sum + (tax.nature === 1 ? tax.amount : -tax.amount);
+    }, 0);
+    setTotalAmount(total);
+    onTotalChange?.(total); 
+  }
+}, [taxDetails]);
 
   const handleFieldChange = (index: number, field: keyof TaxDetail, value: any) => {
     const updated = [...editableRows];

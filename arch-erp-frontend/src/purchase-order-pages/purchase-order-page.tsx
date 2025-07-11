@@ -63,20 +63,30 @@ useEffect(() => {
     };
     setEditItem(enrichedEditItem);
     setItemDetails(fullData.itemDetails || []);   
-    setTaxDetails(fullData.taxDetails || []);
+
+    const convertedTaxDetails = (fullData.taxDetails || []).map((tax: any) => ({
+      ...tax,
+      nature: tax.nature === "Add" ? 1 : 2,
+    }));
+    setTaxDetails(convertedTaxDetails);
     setNetAmount(Number(fullData.netAmount) || 0);
   }
 }, [location.state]);
 
-useEffect(() => {
-  const totalItemAmount = itemDetails.reduce((prev, curr) => prev + curr.amount, 0);
-  const totalTaxAmount = taxDetails.reduce((prev, curr) => {
-    return prev + (curr.nature === "Add" ? curr.amount : -curr.amount);
-  }, 0);
-  setNetAmount(totalItemAmount + totalTaxAmount);
-}, [itemDetails, taxDetails]);
-  
+// useEffect(() => {
+//   const totalItemAmount = itemDetails.reduce((prev, curr) => prev + curr.amount, 0);
+//   const totalTaxAmount = taxDetails.reduce((prev, curr) => {
+//     return prev + (curr.nature === "Add" ? curr.amount : -curr.amount);
+//   }, 0);
+//   setNetAmount(totalItemAmount + totalTaxAmount);
+// }, [itemDetails, taxDetails]);
 
+  const [itemTotal, setItemTotal] = useState(0);
+  const [taxTotal, setTaxTotal] = useState(0);
+  
+  useEffect(() => {
+    setNetAmount(itemTotal + taxTotal);
+  }, [itemTotal, taxTotal]);
 
   // useEffect(() => {
   //   const fetchItems = async () => {
@@ -315,11 +325,11 @@ useEffect(() => {
       )}
 
       <div className="my-6">
-        <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} />
+        <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} onTotalChange={(total) => setItemTotal(total)} />
       </div>
 
       <div className="my-6">
-        <TaxDetailGrid taxDetails={taxDetails} setTaxDetails={setTaxDetails} />
+        <TaxDetailGrid taxDetails={taxDetails} setTaxDetails={setTaxDetails} onTotalChange={(total) => setTaxTotal(total)}/>
       </div>
 
       <div className="my-6 flex justify-end">

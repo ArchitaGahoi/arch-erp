@@ -67,7 +67,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange
         </tbody>
       </table>
       <p className="font-semibold mt-2 flex justify-end">
-        Total Item Amount: {{total.toFixed(2)}}
+        Total Item Amount: {total.toFixed(2)}
       </p>
     </div>
   );
