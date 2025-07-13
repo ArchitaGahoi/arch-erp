@@ -221,40 +221,35 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
               <FormItem>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
-                  <Combobox value={field.value} onChange={field.onChange}>
+                  <Combobox
+                    value={field.value}
+                    onChange={(val) => {
+                      field.onChange(val);
+                    }}
+                  >
                     <div className="relative">
                       <Combobox.Input
-                        // {...form.register ("supplierLocationNo", { required: true })}
-                        // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className="w-full border border-gray-300 rounded-md p-2"
                         onChange={(e) => {
                           setQuery(e.target.value);
-                          field.onChange(e.target.value);
-                          if (errData?.poNo) errData.poNo = "";
                         }}
-                        displayValue={(val: string | number) => {
-                          const selectedPartner = supplierOptions.find(p => p.bpId === val);
-                          return selectedPartner 
-                            ? `${selectedPartner.bpName} (${selectedPartner.bpCode}) (${selectedPartner.bpAddress})`
-                            : (defaultValues?.supplierLocationLabel || '');
+                        displayValue={() => {
+                          const selected = supplierOptions.find(p => p.bpId === field.value);
+                          return selected
+                            ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})`
+                            : defaultValues?.supplierLocationLabel || '';
                         }}
+                        
+                        
                         placeholder="Select Supplier Location"
                       />
                       {filteredSuppliers.length > 0 && (
-                        <Combobox.Options className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
-                            <Combobox.Option
-                              key={partner.bpId}
-                              value={partner.bpId}
-                              className={({ selected }) =>
-                                `cursor-pointer px-4 py-2 ${
-                                  selected ? "bg-blue-500 text-white" : "bg-white"
-                                }`
-                              }
-                            >
+                            <Combobox.Option key={partner.bpId} value={partner.bpId}>
                               {partner.bpName} ({partner.bpCode}) ({partner.bpAddress})
                             </Combobox.Option>
-                          ))} 
+                          ))}
                         </Combobox.Options>
                       )}
                       {filteredSuppliers.length === 0 && !loading && query !== "" && (
@@ -265,11 +260,11 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     </div>
                   </Combobox>
                 </FormControl>
-                {/* <div className="text-red-500 text-sm">{errData?.supplierLocationNo}</div> */}
-                <FormMessage />
+                <div className="text-red-500 text-sm">{errData?.supplierLocationNo}</div>
               </FormItem>
             )}
           />
+
         </div>
       </form>
     </Form>

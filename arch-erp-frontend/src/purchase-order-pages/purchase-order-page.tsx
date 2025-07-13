@@ -57,10 +57,14 @@ export default function PurchaseOrderPage() {
 useEffect(() => {
   if (location.state?.editItem) {
     const fullData = location.state.editItem;
+    console.log("Raw editItem from location:", fullData);
     const enrichedEditItem = {
       ...fullData,
+      
       supplierLocationLabel: `${fullData.bpName} (${fullData.bpCode}) (${fullData.bpAddress})`,
     };
+
+    console.log("enrichedEditItem--->", enrichedEditItem);
     setEditItem(enrichedEditItem);
     setItemDetails(fullData.itemDetails || []);   
 
@@ -103,7 +107,7 @@ useEffect(() => {
 
   const handleFormSubmit = async (data: PO) => {
     const formData = formRef.current?.getValues();
-
+    console.log("formData.supplierLocationNo:", formData.supplierLocationNo);
     // if (!formData.poNo) errors.poNo = "PO No is required";
     // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
 
@@ -112,13 +116,18 @@ useEffect(() => {
       poNo: formData.poNo,
       poDate: formData.poDate,
       statusNo: formData.statusNo === "Initialised" ? 1 : 2,
-      supplierLocationNo: formData.supplierLocationNo,
+      supplierLocationNo: formData.supplierLocationNo ,
       itemDetails,
       taxDetails,
       netAmount,  
     };
+    console.log("asdfghj",finalData);
 
-    console.log(finalData);
+    if (!finalData.poNo || !finalData.poDate || !finalData.statusNo || !finalData.supplierLocationNo) {
+    toast.error("Some required fields are missing: PO No, Date, Status, or Supplier Location.");
+    return;
+    }
+
     try {
       if (editItem?.poId) {
         await api.put(`/purchase-order/${editItem.poId}`,finalData, {

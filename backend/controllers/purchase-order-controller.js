@@ -173,33 +173,37 @@ exports.updatePurchaseOrder = (req, res) => {
   const modifiedBy = req.user.id;
   const modifiedDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-  // Get current poNo for this id
+  // Check for missing fields
+  if (!poNo || !poDate || !statusNo || !supplierLocationNo) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  // Check if supplierLocationNo is valid number
+  if (isNaN(supplierLocationNo)) {
+    return res.status(400).json({ message: "Invalid Supplier Location" });
+  }
+
+  const formattedPoDate = new Date(poDate).toISOString().slice(0, 10); 
+
+  // Step 1: Check if PO exists
   const getCurrentSql = "SELECT poNo FROM PurchaseOrder WHERE poId = ?";
   db.query(getCurrentSql, [id], (err, result) => {
     if (err) return res.status(500).json({ message: "DB error", err });
     if (result.length === 0)
       return res.status(404).json({ message: "Purchase Order not found" });
 
-    const currentPoNo = result[0].poNo;
-
-    // If PO No is changing, check uniqueness
-    if (poNo !== currentPoNo) {
-      const checkSql =
-        "SELECT poId FROM PurchaseOrder WHERE poNo = ? AND poId != ?";
-      db.query(checkSql, [poNo, id], (err, rows) => {
-        if (err) return res.status(500).json({ message: "DB error", err });
-        if (rows.length > 0) {
-          return res.status(400).json({ message: "PO Number must be unique" });
-        }
-        doUpdate();
-      });
-    } else {
+    // Step 2: Check for duplicate PO number (excluding self)
+    const checkSql = "SELECT poId FROM PurchaseOrder WHERE poNo = ? AND poId != ?";
+    db.query(checkSql, [poNo, id], (err, rows) => {
+      if (err) return res.status(500).json({ message: "DB error", err });
+      if (rows.length > 0) {
+        return res.status(400).json({ message: "PO Number must be unique" });
+      }
       doUpdate();
-    }
+    });
   });
 
-  
-
+  // Step 3: Do Update
   function doUpdate() {
     const sql = `
       UPDATE PurchaseOrder SET 
@@ -209,67 +213,51 @@ exports.updatePurchaseOrder = (req, res) => {
     `;
     db.query(
       sql,
-      [poNo, poDate, statusNo, supplierLocationNo, netAmount, modifiedBy, modifiedDate, id],
+      [poNo, formattedPoDate, statusNo, supplierLocationNo, netAmount, modifiedBy, modifiedDate, id],
       (err) => {
         if (err)
           return res.status(500).json({ message: "Update failed (PO Header)", err });
 
-        // Delete existing item and tax details
+        // Clear old items/taxes
         const deleteItems = "DELETE FROM PurchaseOrderItemDetail WHERE poId = ?";
         const deleteTaxes = "DELETE FROM PurchaseOrderTaxDetail WHERE poId = ?";
 
         db.query(deleteItems, [id], (err) => {
           if (err)
-            return res
-              .status(500)
-              .json({ message: "Failed to delete old item details", err });
+            return res.status(500).json({ message: "Failed to delete old item details", err });
 
           db.query(deleteTaxes, [id], (err) => {
             if (err)
-              return res
-                .status(500)
-                .json({ message: "Failed to delete old tax details", err });
+              return res.status(500).json({ message: "Failed to delete old tax details", err });
 
-            // Re-insert item details
+            // Insert item details
             for (let i = 0; i < itemDetails.length; i++) {
               const item = itemDetails[i];
               const itemSql = `
                 INSERT INTO PurchaseOrderItemDetail (itemId, poId, quantity, rate, amount)
                 VALUES (?, ?, ?, ?, ?)
               `;
-              db.query(
-                itemSql,
-                [item.itemId, id, item.quantity, item.rate, item.amount],
-                (err) => {
-                  if (err) {
-                    console.error("DB Error (Insert Item):", err);
-                    return res
-                      .status(500)
-                      .json({ message: "Item insert failed", err });
-                  }
+              db.query(itemSql, [item.itemId, id, item.quantity, item.rate, item.amount], (err) => {
+                if (err) {
+                  console.error("DB Error (Insert Item):", err);
+                  return res.status(500).json({ message: "Item insert failed", err });
                 }
-              );
+              });
             }
 
-            // Re-insert tax details
+            // Insert tax details
             for (let i = 0; i < taxDetails.length; i++) {
               const tax = taxDetails[i];
               const taxSql = `
                 INSERT INTO PurchaseOrderTaxDetail (poId, taxName, nature, amount)
                 VALUES (?, ?, ?, ?)
               `;
-              db.query(
-                taxSql,
-                [id, tax.taxName, tax.nature, tax.amount],
-                (err) => {
-                  if (err) {
-                    console.error("DB Error (Insert Tax):", err);
-                    return res
-                      .status(500)
-                      .json({ message: "Tax insert failed", err });
-                  }
+              db.query(taxSql, [id, tax.taxName, tax.nature, tax.amount], (err) => {
+                if (err) {
+                  console.error("DB Error (Insert Tax):", err);
+                  return res.status(500).json({ message: "Tax insert failed", err });
                 }
-              );
+              });
             }
 
             res.json({ message: "Purchase Order updated" });
@@ -313,6 +301,124 @@ exports.deletePurchaseOrder = (req, res) => {
     });
   });
 };
+
+// exports.updatePurchaseOrder = (req, res) => {
+//   const { id } = req.params;
+//   const {
+//     poNo,
+//     poDate,
+//     statusNo,
+//     supplierLocationNo,
+//     netAmount,
+//     itemDetails,
+//     taxDetails,
+//   } = req.body;
+
+//   const modifiedBy = req.user.id;
+//   const modifiedDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+//   // Get current poNo for this id
+//   const getCurrentSql = "SELECT poNo FROM PurchaseOrder WHERE poId = ?";
+//   db.query(getCurrentSql, [id], (err, result) => {
+//     if (err) return res.status(500).json({ message: "DB error", err });
+//     if (result.length === 0)
+//       return res.status(404).json({ message: "Purchase Order not found" });
+
+//     const currentPoNo = result[0].poNo;
+
+//     // If PO No is changing, check uniqueness
+//     const checkSql = "SELECT poId FROM PurchaseOrder WHERE poNo = ? AND poId != ?";
+//   db.query(checkSql, [poNo, id], (err, rows) => {
+//     if (err) return res.status(500).json({ message: "DB error", err });
+//     if (rows.length > 0) {
+//       return res.status(400).json({ message: "PO Number must be unique" });
+//     }
+//     doUpdate(); // safe to proceed
+//   });
+//   });
+
+  
+
+//   function doUpdate() {
+//     const formattedPoDate = new Date(poDate).toISOString().slice(0, 10);
+//     const sql = `
+//       UPDATE PurchaseOrder SET 
+//       poNo = ?, poDate = ?, statusNo = ?, supplierLocationNo = ?, netAmount = ?, 
+//       modifiedBy = ?, modifiedDate = ? 
+//       WHERE poId = ?
+//     `;
+//     db.query(
+//       sql,
+//       [poNo, formattedPoDate, statusNo, supplierLocationNo, netAmount, modifiedBy, modifiedDate, id],
+//       (err) => {
+//         if (err)
+//           return res.status(500).json({ message: "Update failed (PO Header)", err });
+
+//         // Delete existing item and tax details
+//         const deleteItems = "DELETE FROM PurchaseOrderItemDetail WHERE poId = ?";
+//         const deleteTaxes = "DELETE FROM PurchaseOrderTaxDetail WHERE poId = ?";
+
+//         db.query(deleteItems, [id], (err) => {
+//           if (err)
+//             return res
+//               .status(500)
+//               .json({ message: "Failed to delete old item details", err });
+
+//           db.query(deleteTaxes, [id], (err) => {
+//             if (err)
+//               return res
+//                 .status(500)
+//                 .json({ message: "Failed to delete old tax details", err });
+
+//             // Re-insert item details
+//             for (let i = 0; i < itemDetails.length; i++) {
+//               const item = itemDetails[i];
+//               const itemSql = `
+//                 INSERT INTO PurchaseOrderItemDetail (itemId, poId, quantity, rate, amount)
+//                 VALUES (?, ?, ?, ?, ?)
+//               `;
+//               db.query(
+//                 itemSql,
+//                 [item.itemId, id, item.quantity, item.rate, item.amount],
+//                 (err) => {
+//                   if (err) {
+//                     console.error("DB Error (Insert Item):", err);
+//                     return res
+//                       .status(500)
+//                       .json({ message: "Item insert failed", err });
+//                   }
+//                 }
+//               );
+//             }
+
+//             // Re-insert tax details
+//             for (let i = 0; i < taxDetails.length; i++) {
+//               const tax = taxDetails[i];
+//               const taxSql = `
+//                 INSERT INTO PurchaseOrderTaxDetail (poId, taxName, nature, amount)
+//                 VALUES (?, ?, ?, ?)
+//               `;
+//               db.query(
+//                 taxSql,
+//                 [id, tax.taxName, tax.nature, tax.amount],
+//                 (err) => {
+//                   if (err) {
+//                     console.error("DB Error (Insert Tax):", err);
+//                     return res
+//                       .status(500)
+//                       .json({ message: "Tax insert failed", err });
+//                   }
+//                 }
+//               );
+//             }
+
+//             res.json({ message: "Purchase Order updated" });
+//           });
+//         });
+//       }
+//     );
+//   }
+// };
 
 
 // exports.createPurchaseOrder = async (req, res) => {
