@@ -60,10 +60,13 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
   });
 
   useEffect(() => {
-    if (defaultValues && isEdit) {
-      form.reset(defaultValues);
-    }
-  }, []);
+  if (defaultValues && isEdit) {
+    form.reset({
+      ...defaultValues,
+      supplierLocationNo: String(defaultValues.supplierLocationNo || ""),
+    });
+  }
+}, []);
 
   useImperativeHandle(ref, () => ({
     reset: () =>
@@ -109,6 +112,8 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
             .toLowerCase()
             .includes(query.toLowerCase())
         );
+
+        
 
   const getErrorClass = (field: keyof ErrorData) =>
     (errData?.[field] || form.formState.errors[field]) ? "border-red-500" : "";
@@ -217,16 +222,18 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
           <FormField
             name="supplierLocationNo"
             control={form.control}
-            render={({ field }) => (
+            render={({ field }) => {
+              console.log("ComboBox field.value:", field.value);
+              console.log("supplierOptions:", supplierOptions);
+              return (
               <FormItem>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
-                  <Combobox
-                    value={field.value}
-                    onChange={(val) => {
-                      field.onChange(val);
-                    }}
-                  >
+                  <Combobox 
+                      value={String(field.value)} 
+                      onChange={(val) => {
+                    field.onChange(String(val));
+                  }}>
                     <div className="relative">
                       <Combobox.Input
                         className="w-full border border-gray-300 rounded-md p-2"
@@ -234,7 +241,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                           setQuery(e.target.value);
                         }}
                         displayValue={() => {
-                          const selected = supplierOptions.find(p => p.bpId === field.value);
+                          const selected = supplierOptions.find(p => String(p.bpId) === String(field.value));
                           return selected
                             ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})`
                             : defaultValues?.supplierLocationLabel || '';
@@ -262,7 +269,8 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                 </FormControl>
                 <div className="text-red-500 text-sm">{errData?.supplierLocationNo}</div>
               </FormItem>
-            )}
+              );
+            }}
           />
 
         </div>

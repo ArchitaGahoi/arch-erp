@@ -205,7 +205,7 @@ exports.updatePurchaseOrder = (req, res) => {
 
   // Step 3: Do Update
   function doUpdate() {
-    const sql = `
+    const sql = ` 
       UPDATE PurchaseOrder SET 
       poNo = ?, poDate = ?, statusNo = ?, supplierLocationNo = ?, netAmount = ?, 
       modifiedBy = ?, modifiedDate = ? 

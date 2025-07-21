@@ -108,9 +108,13 @@ useEffect(() => {
   const handleFormSubmit = async (data: PO) => {
     const formData = formRef.current?.getValues();
     console.log("formData.supplierLocationNo:", formData.supplierLocationNo);
+    console.log("formdata", formData);
     // if (!formData.poNo) errors.poNo = "PO No is required";
     // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
-
+     if (!formData.supplierLocationNo || isNaN(Number(formData.supplierLocationNo))) {
+    toast.error("Please select a valid supplier location.");
+    return;
+  }
     console.log("sdfgbn....",data);
     const finalData = {
       poNo: formData.poNo,
@@ -295,14 +299,14 @@ useEffect(() => {
           ref={formRef}
           
           defaultValues={
-            
+            //console.log("EditItem for defaultValues:", editItem);
             editItem
               ? {                
                 poNo: editItem.poNo,
                 poDate: new Date(editItem.poDate),
                 statusNo: ((editItem.statusNo === 1 ? "Initialised" : "Authorised") as "Initialised" | "Authorised"),
 
-                supplierLocationNo: String(editItem.supplierLocationNo) || "",
+                supplierLocationNo: editItem.supplierLocationNo ? String(editItem.supplierLocationNo) : "",
                 supplierLocationLabel: editItem.supplierLocationLabel || "",
               }
               : undefined
