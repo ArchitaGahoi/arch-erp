@@ -152,12 +152,14 @@ useEffect(() => {
       navigate("/purchaseOrder-search");
     } catch (err: Error | any) {
       console.error(err);
-      setErrData(()=>{
-        return {poNo : err.response.data.message,
-          statusNo : err.response.data.message,
-          supplierLocationNo : err.response.data.message,
-        };
-      })
+      const backendErrors = err?.response?.data?.errors || {};
+      setErrData(backendErrors);
+      // setErrData(()=>{
+      //   return {poNo : err.response.data.message,
+      //     statusNo : err.response.data.message,
+      //     supplierLocationNo : err.response.data.message,
+      //   };
+      // })
       return;
       // const message =
       //   error?.response?.data?.message || error?.message || "Something went wrong";

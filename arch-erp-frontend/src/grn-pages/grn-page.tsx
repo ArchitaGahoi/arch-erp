@@ -343,7 +343,7 @@ useEffect(() => {
           isEdit={!!editItem}
           
           errData={errData}
-           itemDetails={itemDetails}
+          itemDetails={itemDetails}
           setItemDetails={setItemDetails}
           //onSupplierChange={handleSupplierChange}
           //onPOChange={handlePOChange}

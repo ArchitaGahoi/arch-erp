@@ -283,7 +283,7 @@ const GRNForm = forwardRef(function grnForm(
                         className="w-full border border-gray-300 rounded-md p-2"
                         onChange={(e) => {
                           setQuery(e.target.value);
-                          //if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
+                          if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
                         }}// 
                         displayValue={(val: string | number) => {
                           if (!val) return '';
@@ -353,7 +353,11 @@ const GRNForm = forwardRef(function grnForm(
                     <div className="relative">
                       <Combobox.Input
                         className="w-full border border-gray-300 rounded-md p-2"
-                        onChange={(e) => setQuery(e.target.value)} // ✅ only filters, not changes value
+                        onChange={(e) => {
+                          setQuery(e.target.value);
+                          if (errData?.poNo) errData.poNo = "";
+                          
+                        }} // ✅ only filters, not changes value
                         displayValue={(val: string) => val}
                         placeholder="Select PO No"
                       />

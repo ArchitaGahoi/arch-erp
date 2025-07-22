@@ -30,11 +30,11 @@ exports.createPurchaseOrder = (req, res) => {
   let statusValue;
   if (statusNo === 1) statusValue = 1;
   else if (statusNo === 2) statusValue = 2;
-  else return res.status(400).json({statusNo: message =  "Invalid status" });
+  else return res.status(400).json({ errors: { statusNo: "Invalid status" } });
 
   // Extract numeric supplier location ID
   if (isNaN(supplierLocationNo)) {
-    return res.status(400).json({ message: "Invalid Supplier Location" });
+    return res.status(400).json({ errors: { supplierLocationNo: "Invalid Supplier Location" } });
   }
   const supplierLocationId = parseInt(supplierLocationNo);
 
@@ -50,7 +50,7 @@ exports.createPurchaseOrder = (req, res) => {
     }
 
     if (rows.length > 0) {
-      return res.status(400).json({ message: "PO Number must be unique" });
+      return res.status(400).json({ errors: { poNo: "PO Number must be unique" } });
     }
 
     // Step 2: Insert into PurchaseOrder
@@ -194,7 +194,7 @@ exports.updatePurchaseOrder = (req, res) => {
 
   // Check if supplierLocationNo is valid number
   if (isNaN(supplierLocationNo)) {
-    return res.status(400).json({ message: "Invalid Supplier Location" });
+    return res.status(400).json({ errors: { supplierLocationNo: "Invalid Supplier Location" }  });
   }
 
   const formattedPoDate = new Date(poDate).toISOString().slice(0, 10); 
@@ -202,16 +202,16 @@ exports.updatePurchaseOrder = (req, res) => {
   // Step 1: Check if PO exists
   const getCurrentSql = "SELECT poNo FROM PurchaseOrder WHERE poId = ?";
   db.query(getCurrentSql, [id], (err, result) => {
-    if (err) return res.status(500).json({ message: "DB error", err });
+    if (err) return res.status(500).json({ errors: { general: "DB error", err } });
     if (result.length === 0)
-      return res.status(404).json({ message: "Purchase Order not found" });
+      return res.status(404).json({ errors: { general: "Purchase Order not found" } });
 
     // Step 2: Check for duplicate PO number (excluding self)
     const checkSql = "SELECT poId FROM PurchaseOrder WHERE poNo = ? AND poId != ?";
     db.query(checkSql, [poNo, id], (err, rows) => {
-      if (err) return res.status(500).json({ message: "DB error", err });
+      if (err) return res.status(500).json({ errors: { general: "DB error", err } });
       if (rows.length > 0) {
-        return res.status(400).json({ message: "PO Number must be unique" });
+        return res.status(400).json({ errors: { poNo: "PO Number must be unique" } });
       }
       doUpdate();
     });
