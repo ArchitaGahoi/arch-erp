@@ -56,6 +56,7 @@ useEffect(() => {
     ...grnFullData,
     supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
     };
+    console.log("enrichedEditItem--->", enrichedEditItem);
     const mappedItems = (grnFullData.itemDetails || []).map((item: any) => ({
       poitemDetailId: item.poitemDetailId,
       itemName: item.itemName,
@@ -155,13 +156,15 @@ useEffect(() => {
       
     } catch (err: Error | any) {
       console.error(err);
-      setErrData(()=>{
-        return {grnNo : err.response.data.message,
-            supplierLocationNo : err.response.data.message,
-            poNo : err.response.data.message,
-            challanNo : err.response.data.message
-        };
-      })
+      const backendErrors = err?.response?.data?.errors || {};
+      setErrData(backendErrors); 
+      // setErrData(()=>{
+      //   return {grnNo : err.response.data.message,
+      //       supplierLocationNo : err.response.data.message,
+      //       poNo : err.response.data.message,
+      //       challanNo : err.response.data.message
+      //   };
+      // })
       return;
       // const message =
       //   error?.response?.data?.message || error?.message || "Something went wrong";

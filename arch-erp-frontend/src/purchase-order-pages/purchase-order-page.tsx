@@ -60,7 +60,6 @@ useEffect(() => {
     console.log("Raw editItem from location:", fullData);
     const enrichedEditItem = {
       ...fullData,
-      
       supplierLocationLabel: `${fullData.bpName} (${fullData.bpCode}) (${fullData.bpAddress})`,
     };
 
@@ -111,10 +110,10 @@ useEffect(() => {
     console.log("formdata", formData);
     // if (!formData.poNo) errors.poNo = "PO No is required";
     // if (!formData.supplierLocationNo) errors.supplierLocationNo = "Supplier Location is required";
-     if (!formData.supplierLocationNo || isNaN(Number(formData.supplierLocationNo))) {
-    toast.error("Please select a valid supplier location.");
-    return;
-  }
+  //    if (!formData.supplierLocationNo || isNaN(Number(formData.supplierLocationNo))) {
+  //   toast.error("Please select a valid supplier location.");
+  //   return;
+  // }
     console.log("sdfgbn....",data);
     const finalData = {
       poNo: formData.poNo,
@@ -134,6 +133,7 @@ useEffect(() => {
 
     try {
       if (editItem?.poId) {
+        console.log("finalData after edit",finalData);
         await api.put(`/purchase-order/${editItem.poId}`,finalData, {
            headers: {
             Authorization: `Bearer ${token}`,
@@ -305,8 +305,7 @@ useEffect(() => {
                 poNo: editItem.poNo,
                 poDate: new Date(editItem.poDate),
                 statusNo: ((editItem.statusNo === 1 ? "Initialised" : "Authorised") as "Initialised" | "Authorised"),
-
-                supplierLocationNo: editItem.supplierLocationNo ? String(editItem.supplierLocationNo) : "",
+                supplierLocationNo: String(editItem.supplierLocationNo) || "",
                 supplierLocationLabel: editItem.supplierLocationLabel || "",
               }
               : undefined

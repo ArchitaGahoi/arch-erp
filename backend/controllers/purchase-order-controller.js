@@ -145,8 +145,8 @@ exports.getPurchaseOrderById = (req, res) => {
 
         res.json({
           ...po[0],
-          supplierLocationNo: po[0].bpId,
-          supplierLocationLabel: `${po[0].bpName} (${po[0].bpCode}) (${po[0].bpAddress})`,
+          //supplierLocationNo: po[0].bpId,
+          //supplierLocationLabel: `${po[0].bpName} (${po[0].bpCode}) (${po[0].bpAddress})`,
           itemDetails: items,
           taxDetails: formattedTaxes
         });

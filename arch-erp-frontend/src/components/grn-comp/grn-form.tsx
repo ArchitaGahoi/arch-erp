@@ -278,12 +278,12 @@ const GRNForm = forwardRef(function grnForm(
                   }}>
                     <div className="relative">
                       <Combobox.Input
-                        {...form.register ("supplierLocationNo", { required: true })}
-                        aria-invalid={errData?. supplierLocationNo? "true" : "false"}
+                        // {...form.register ("supplierLocationNo", { required: true })}
+                        // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className="w-full border border-gray-300 rounded-md p-2"
                         onChange={(e) => {
                           setQuery(e.target.value);
-                          if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
+                          //if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
                         }}// 
                         displayValue={(val: string | number) => {
                           if (!val) return '';

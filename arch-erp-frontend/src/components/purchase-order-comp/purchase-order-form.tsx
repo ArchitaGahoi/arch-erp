@@ -61,10 +61,9 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
 
   useEffect(() => {
   if (defaultValues && isEdit) {
-    form.reset({
-      ...defaultValues,
-      supplierLocationNo: String(defaultValues.supplierLocationNo || ""),
-    });
+    form.reset(defaultValues
+      //supplierLocationNo: String(defaultValues.supplierLocationNo || ""),
+    );
   }
 }, []);
 
@@ -128,6 +127,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
             render={({ field }) => {
               console.log("field",field);
               return(
+                
               <FormItem className={`flex-1 ${getErrorClass("poNo")}`}>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
@@ -229,10 +229,14 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
               <FormItem>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
-                  <Combobox 
+                  {/* <Combobox 
                       value={String(field.value)} 
                       onChange={(val) => {
                     field.onChange(String(val));
+                  }}> */}
+                  <Combobox value={field.value} onChange={(val) => {
+                    field.onChange(val); 
+                    // onSupplierChange?.(val);
                   }}>
                     <div className="relative">
                       <Combobox.Input
@@ -240,11 +244,12 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                         onChange={(e) => {
                           setQuery(e.target.value);
                         }}
-                        displayValue={() => {
-                          const selected = supplierOptions.find(p => String(p.bpId) === String(field.value));
+                        displayValue={(val: string | number) => {
+                          if (!val) return '';
+                          const selected = supplierOptions.find(p => p.bpId === val);
                           return selected
                             ? `${selected.bpName} (${selected.bpCode}) (${selected.bpAddress})`
-                            : defaultValues?.supplierLocationLabel || '';
+                            : (defaultValues?.supplierLocationLabel || '');
                         }}
                         
                         
@@ -259,11 +264,11 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                           ))}
                         </Combobox.Options>
                       )}
-                      {filteredSuppliers.length === 0 && !loading && query !== "" && (
+                      {/* {filteredSuppliers.length === 0 && !loading && query !== "" && (
                         <div className="absolute z-10 bg-white p-2 border border-gray-300 mt-1 rounded-md shadow-md text-gray-500">
                           No results found.
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </Combobox>
                 </FormControl>

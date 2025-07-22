@@ -26,7 +26,17 @@ exports.createGRN = (req, res) => {
   const createdDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
   if (!grnNo || !grnDate || !statusNo || !supplierLocationNo || !poNo || !challanNo || !challanDate) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({
+      errors: {
+        grnNo: !grnNo ? "GRN No is required" : undefined,
+        grnDate: !grnDate ? "GRN Date is required" : undefined,
+        statusNo: !statusNo ? "Status is required" : undefined,
+        supplierLocationNo: !supplierLocationNo ? "Supplier Location is required" : undefined,
+        poNo: !poNo ? "PO No is required" : undefined,
+        challanNo: !challanNo ? "Challan No is required" : undefined,
+        challanDate: !challanDate ? "Challan Date is required" : undefined,
+      }
+    });
   }
 
   // Check for duplicate GRN No
@@ -38,7 +48,7 @@ exports.createGRN = (req, res) => {
     }
 
     if (rows.length > 0) {
-      return res.status(400).json({ message: "GRN Number must be unique" });
+      return res.status(400).json({ errors: { grnNo: "GRN Number must be unique" } });
     }
 
     // Insert GRN Header
