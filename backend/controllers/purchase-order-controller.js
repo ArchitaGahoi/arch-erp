@@ -16,7 +16,14 @@ exports.createPurchaseOrder = (req, res) => {
   const createdDate = new Date().toISOString().slice(0, 19).replace("T", " ");
 
   if (!poNo || !poDate || !statusNo || !supplierLocationNo) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ 
+      errors: {
+        poNo: "PO Number is required",
+        poDate: "PO Date is required",
+        statusNo: "Status is required",
+        supplierLocationNo: "Supplier Location is required",
+      } 
+    });
   }
 
   // Map status string to numeric value
@@ -175,7 +182,14 @@ exports.updatePurchaseOrder = (req, res) => {
 
   // Check for missing fields
   if (!poNo || !poDate || !statusNo || !supplierLocationNo) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ 
+      errors: {
+        poNo: "PO Number is required",
+        poDate: "PO Date is required",
+        statusNo: "Status is required",
+        supplierLocationNo: "Supplier Location is required",
+      } 
+    });
   }
 
   // Check if supplierLocationNo is valid number
