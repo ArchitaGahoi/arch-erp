@@ -15,9 +15,10 @@ interface Props {
   setTaxDetails: (items: TaxDetail[]) => void;
   onRowClick?: (items: TaxDetail) => void;
   onTotalChange?: (total: number) => void;
+  isReadOnly?: boolean;
 }
 
-const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange }: Props) => {
+const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, isReadOnly }: Props) => {
   const [editableRows, setEditableRows] = useState<TaxDetail[]>([
     { taxName: "", nature: 1, amount: 0 },
   ]);
@@ -94,7 +95,7 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange }:
     <div className="bg-white p-4 rounded-lg shadow mt-4">
       <div className="flex flex-row justify-between items-center mb-3">
         <h2 className="text-lg font-bold">Tax Details</h2>
-        <Button onClick={handleAddRow}>Add Tax</Button>
+        {!isReadOnly && <Button onClick={handleAddRow}>Add Tax</Button>}
       </div>
 
       <table className="table-auto w-full">
@@ -103,12 +104,12 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange }:
             <th className="p-2 border">Tax Name</th>
             <th className="p-2 border">Nature</th>
             <th className="p-2 border">Amount</th>
-            <th className="p-2 border">Action</th>
+            {!isReadOnly && <th>Action</th>}
           </tr>
         </thead>
         <tbody>
           {/* Editable rows */}
-          {editableRows.map((tax, index) => (
+          {!isReadOnly &&   editableRows.map((tax, index) => (
             <tr key={`editable-${index}`} className="bg-yellow-50">
               <td className="border p-2">
                 <Input
@@ -164,11 +165,13 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange }:
               <td className="border p-2">{tax.taxName}</td>
               <td className="border p-2">{tax.nature === 1 ? "+" : "-"}</td>
               <td className="border p-2">{tax.amount}</td>
+              {!isReadOnly && (
               <td className="border p-2">
                 <Button variant="outline" onClick={() => handleDeleteSaved(index)}>
                   Delete
                 </Button>
               </td>
+              )}
             </tr>
           ))}
         </tbody>

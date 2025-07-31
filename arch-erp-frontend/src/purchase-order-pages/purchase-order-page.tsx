@@ -53,6 +53,7 @@ export default function PurchaseOrderPage() {
   const initializedRef = useRef(false);
 
    const deleteEnabled = !!editItem;
+  const isAuthorised = editItem?.statusNo === 2;
   
 useEffect(() => {
   if (location.state?.editItem) {
@@ -278,6 +279,7 @@ useEffect(() => {
           handleFormSubmit(data);
         }}
       > */}
+      { (
       <PurchaseHeader
         onAdd={handleClear}
         onSearch={handleSearch}
@@ -295,8 +297,10 @@ useEffect(() => {
         
         errData={errData}
       />
+      )}
         
         <PurchaseOrderForm
+          disableAll={isAuthorised}
           key={editItem ? `edit-${editItem.poId}` : "new"}
           ref={formRef}
           
@@ -320,7 +324,7 @@ useEffect(() => {
       {/* </form> */}
 
       <div className="my-6 flex justify-end">
-        <button
+        <button disabled={isAuthorised}
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleAddItem}
         >
@@ -339,11 +343,12 @@ useEffect(() => {
       )}
 
       <div className="my-6">
-        <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} onTotalChange={(total) => setItemTotal(total)} />
+        <ItemDetailGrid isReadOnly={isAuthorised}
+        itemDetails={itemDetails} setItemDetails={setItemDetails} onTotalChange={(total) => setItemTotal(total)} />
       </div>
 
       <div className="my-6">
-        <TaxDetailGrid taxDetails={taxDetails} setTaxDetails={setTaxDetails} onTotalChange={(total) => setTaxTotal(total)}/>
+        <TaxDetailGrid isReadOnly={isAuthorised} taxDetails={taxDetails} setTaxDetails={setTaxDetails} onTotalChange={(total) => setTaxTotal(total)}/>
       </div>
 
       <div className="my-6 flex justify-end">

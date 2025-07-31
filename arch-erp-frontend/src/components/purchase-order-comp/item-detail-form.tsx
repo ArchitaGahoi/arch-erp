@@ -23,9 +23,10 @@ interface Props {
     rate: number;
     amount: number;
   }) => void;
+  isReadOnly?: boolean;
 }
 
-const ItemDetailForm = ({ addItemToGrid }: Props) => {
+const ItemDetailForm = ({ addItemToGrid, isReadOnly = false }: Props) => {
   const apiUrl = "/item-master/items";
 
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
@@ -102,9 +103,14 @@ const ItemDetailForm = ({ addItemToGrid }: Props) => {
         <div className="relative">
           <ComboboxInput
             id="item-combo"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isReadOnly}
+            className={`w-full border rounded-md px-3 py-2 mb-2 ${
+              isReadOnly ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
+            }`}
             displayValue={(item: any) => item?.itemName || ""}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              if (!isReadOnly) setQuery(event.target.value);
+            }}
             required
           />
           <ComboboxOptions className="absolute z-10 w-full bg-white border border-gray-200 mt-1 rounded-md max-h-60 overflow-auto shadow-md">
@@ -150,8 +156,13 @@ const ItemDetailForm = ({ addItemToGrid }: Props) => {
           length={[9, 3]}
           isDecimal={true}
           isAbsolute={true}
-          onChange={(val) => setQuantity(Number(val))}
-          className="w-full border border-gray-300 rounded-md px-3 py-2"
+          disabled={isReadOnly}
+          onChange={(val) => {
+            if (!isReadOnly) setQuantity(Number(val));
+          }}
+          className={`w-full border rounded-md px-3 py-2 ${
+            isReadOnly ? "bg-gray-200 text-gray-500" : ""
+          }`}
         />
       </div>
 
@@ -163,8 +174,13 @@ const ItemDetailForm = ({ addItemToGrid }: Props) => {
           length={[9, 4]}
           isDecimal={true}
           isAbsolute={true}
-          onChange={(val) => setRate(Number(val))}
-          className="w-full border border-gray-300 rounded-md px-3 py-2"
+          disabled={isReadOnly}
+          onChange={(val) => {
+            if (!isReadOnly) setRate(Number(val));
+          }}
+          className={`w-full border rounded-md px-3 py-2 ${
+            isReadOnly ? "bg-gray-200 text-gray-500" : ""
+          }`}
         />
       </div>
 
@@ -185,18 +201,26 @@ const ItemDetailForm = ({ addItemToGrid }: Props) => {
       <div className="mt-6 flex justify-end space-x-2">
         <button
           type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+          disabled={isReadOnly}
+           className={`px-4 py-2 rounded text-white ${
+            isReadOnly ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+          }`}
         >
           Add
         </button>
         <button
           type="reset"
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          disabled={isReadOnly} 
+          className={`px-4 py-2 rounded text-white ${
+            isReadOnly ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"
+          }`}
           onClick={() => {
-            setSelectedItem(null);
-            setQuantity(1);
-            setRate(0);
-            setQuery("");
+            if (!isReadOnly) {
+              setSelectedItem(null);
+              setQuantity(1);
+              setRate(0);
+              setQuery("");
+            }
           }}
         >
           Cancel

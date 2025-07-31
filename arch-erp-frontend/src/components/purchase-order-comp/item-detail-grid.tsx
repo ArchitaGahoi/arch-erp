@@ -14,9 +14,10 @@ interface Props {
   setItemDetails: (items: ItemDetail[]) => void;
   onRowClick?: (item: ItemDetail) => void;
   onTotalChange?: (total: number) => void;
+  isReadOnly?: boolean;
 }
 
-const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange  }: Props) => {
+const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange, isReadOnly  }: Props) => {
   const handleDelete = (index: number) => {
     const updated = [...itemDetails];
     updated.splice(index, 1);
@@ -42,7 +43,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange
             <th className="p-2 border">Quantity</th>
             <th className="p-2 border">Rate</th>
             <th className="p-2 border">Amount</th>
-            <th className="p-2 border">Action</th>
+            {!isReadOnly && <th className="p-2 border">Action</th>}
           </tr>
         </thead>
         <tbody>
@@ -57,11 +58,13 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange
               <td>{item.quantity}</td>
               <td>{item.rate}</td>
               <td>{item.amount}</td>
+              {!isReadOnly && (
               <td>
                 <Button variant="outline" onClick={() => handleDelete(index)}>
                   Delete
                 </Button>
               </td>
+              )}
             </tr>
           ))}
         </tbody>

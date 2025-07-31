@@ -33,6 +33,7 @@ interface purchaseOrderFormProps {
   isEdit?: boolean;
   //disableSave?: boolean;
   //onDelete?: () => Promise<void>;
+  disableAll?: boolean;
   
   errData?: ErrorData;
 }
@@ -46,7 +47,7 @@ interface ErrorData {
 
 
 const purchaseOrderForm = forwardRef(function purchaseOrderForm(
-  { defaultValues = { poNo: "", poDate: new Date(), statusNo: "Initialised", supplierLocationNo: "" }, isEdit , errData }: purchaseOrderFormProps,
+  { defaultValues = { poNo: "", poDate: new Date(), statusNo: "Initialised", supplierLocationNo: "" }, isEdit , errData, disableAll }: purchaseOrderFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   const form = useForm<purchaseOrderFormData>({
@@ -126,12 +127,15 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
             control={form.control}
             render={({ field }) => {
               console.log("field",field);
+
               return(
                 
               <FormItem className={`flex-1 ${getErrorClass("poNo")}`}>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
-                  <Input className="w-full border bg-white rounded-md p-2"
+                  <Input className={`w-full border rounded-md p-2 ${
+                      disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                    }`}
                     {...form.register ("poNo", { required: true })}
                     aria-invalid={errData?.poNo ? "true" : "false"}
                     placeholder="PO No" {...field}
@@ -154,10 +158,17 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
               <div className="grid grid-cols-4 items-center gap-2">
                 <FormLabel className="row-span-1">PO Date</FormLabel>
                 <FormControl className="row-span-1">
-                  <Input className="w-full border bg-white rounded-md p-2"
+                  <Input className={`w-full border rounded-md p-2 ${
+                      disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                    }`}
+                    {...form.register ("poNo", { required: true })}
+                    aria-invalid={errData?.poDate ? "true" : "false"}
                     type="date"
                     value={field.value?.toISOString().split("T")[0] || ""}
-                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                    onChange={(e) => {
+                      if (errData?.poDate) errData.poDate = "";
+                      field.onChange(new Date(e.target.value))
+                    }}
                   />
                 </FormControl>
                 <FormMessage className="col-span-3 text-red-500 text-sm" />
@@ -182,18 +193,23 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                 <FormItem>
                   <FormLabel>PO Status</FormLabel>
                   <FormControl>
-                    <Combobox value={field.value} onChange={field.onChange}>
+                    <Combobox value={field.value} onChange={field.onChange} disabled={disableAll}>
                       <div className="relative">
                         <Combobox.Input
-                          className="w-full border border-gray-300 rounded-md p-2"
+                          disabled={disableAll}
+                          className={`w-full border rounded-md p-2 ${
+                            disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
+                          }`}
                           onChange={(e) => {
-                            field.onChange(e.target.value);
-                            setStatusQuery(e.target.value);
+                            if (!disableAll) {
+                              field.onChange(e.target.value);
+                              setStatusQuery(e.target.value);
+                            }
                           }}
                           displayValue={(val: string) => val}
                           placeholder="Select PO Status"
                         />
-                        {filteredStatus.length > 0 && (
+                        {!disableAll && filteredStatus.length > 0 && (
                           <Combobox.Options className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                             {filteredStatus.map((status, index) => (
                               <Combobox.Option
@@ -237,12 +253,15 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                   <Combobox value={field.value} onChange={(val) => {
                     field.onChange(val); 
                     // onSupplierChange?.(val);
-                  }}>
+                  }} disabled={disableAll}>
                     <div className="relative">
                       <Combobox.Input
-                        className="w-full border border-gray-300 rounded-md p-2"
+                        disabled={disableAll}
+                        className={`w-full border rounded-md p-2 ${
+                          disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
+                        }`}
                         onChange={(e) => {
-                          setQuery(e.target.value);
+                          if (!disableAll) setQuery(e.target.value);
                         }}
                         displayValue={(val: string | number) => {
                           if (!val) return '';
@@ -255,7 +274,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                         
                         placeholder="Select Supplier Location"
                       />
-                      {filteredSuppliers.length > 0 && (
+                      {!disableAll && filteredSuppliers.length > 0 && (
                         <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
                             <Combobox.Option key={partner.bpId} value={partner.bpId}>
