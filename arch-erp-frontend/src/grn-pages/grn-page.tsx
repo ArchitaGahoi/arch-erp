@@ -46,6 +46,8 @@ export default function GRNPage() {
   const [isDelete, setIsDelete] = useState(false);
   const initializedRef = useRef(false);
 
+  const isReadOnly = editItem?.statusNo === 2;
+
    const deleteEnabled = !!editItem;
   
 useEffect(() => {
@@ -345,8 +347,15 @@ useEffect(() => {
           errData={errData}
           itemDetails={itemDetails}
           setItemDetails={setItemDetails}
+          disableAll={isReadOnly}
           //onSupplierChange={handleSupplierChange}
           //onPOChange={handlePOChange}
+        />
+
+        <ItemDetailGrid
+          itemDetails={itemDetails}
+          setItemDetails={setItemDetails}
+          isReadOnly={isReadOnly}
         />
       {/* </form> */}
 

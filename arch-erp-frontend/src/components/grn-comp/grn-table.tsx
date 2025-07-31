@@ -8,7 +8,7 @@ interface GRNTableProps {
 const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
     const statusNoes = [
     { label: "Initialised", value: 1 },
-    { label: "Approved", value: 2 },
+    { label: "Authorised", value: 2 },
   ];
 
   

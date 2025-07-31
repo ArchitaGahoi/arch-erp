@@ -42,6 +42,7 @@ interface grnFormProps {
   errData?: ErrorData;
   itemDetails: ItemDetail[];
   setItemDetails: (items: ItemDetail[]) => void;
+  disableAll?: boolean;
   // onSupplierChange?: (supplierLocationNo: string) => void;
   // onPOChange?: (poNo: string) => void;
 }
@@ -68,7 +69,7 @@ interface ItemDetail {
 
 
 const GRNForm = forwardRef(function grnForm(
-  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },isEdit,  errData, itemDetails, setItemDetails}: grnFormProps,
+  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },isEdit,  errData, itemDetails, setItemDetails, disableAll}: grnFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   console.log("defaultValues----", defaultValues)
@@ -176,8 +177,11 @@ const GRNForm = forwardRef(function grnForm(
                 <FormLabel>GRN No</FormLabel>
                 <FormControl>
                   
-                  <Input className="w-full border bg-white rounded-md p-2"
-
+                  <Input className={`w-full border rounded-md p-2 ${
+                      disableAll
+                        ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                        : "bg-white"
+                    }`}
                     {...form.register ("grnNo", { required: true })}
                     aria-invalid={errData?.grnNo ? "true" : "false"}
                     placeholder="GRN No" {...field}
@@ -200,7 +204,9 @@ const GRNForm = forwardRef(function grnForm(
               <div className="grid grid-cols-4 items-center gap-2">
                 <FormLabel className="row-span-1">GRN Date</FormLabel>
                 <FormControl className="row-span-1">
-                  <Input className="w-full border bg-white rounded-md p-2"
+                  <Input className={`w-full border rounded-md p-2 ${
+                      disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                    }`}
                     type="date"
                     value={field.value?.toISOString().split("T")[0] || ""}
                     onChange={(e) => field.onChange(new Date(e.target.value))}
@@ -228,18 +234,23 @@ const GRNForm = forwardRef(function grnForm(
                 <FormItem>
                   <FormLabel>GRN Status</FormLabel>
                   <FormControl>
-                    <Combobox value={field.value} onChange={field.onChange}>
+                    <Combobox value={field.value} onChange={field.onChange} disabled={disableAll}>
                       <div className="relative">
                         <Combobox.Input
-                          className="w-full border border-gray-300 rounded-md p-2"
+                          disabled={disableAll}
+                          className={`w-full border rounded-md p-2 ${
+                            disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
+                          }`}
                           onChange={(e) => {
-                            field.onChange(e.target.value);
-                            setStatusQuery(e.target.value);
+                            if (!disableAll) {
+                              field.onChange(e.target.value);
+                              setStatusQuery(e.target.value);
+                            }
                           }}
                           displayValue={(val: string) => val}
                           placeholder="Select GRN Status"
                         />
-                        {filteredStatus.length > 0 && (
+                        {!disableAll && filteredStatus.length > 0 && (
                           <Combobox.Options className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                             {filteredStatus.map((status, index) => (
                               <Combobox.Option
@@ -275,14 +286,18 @@ const GRNForm = forwardRef(function grnForm(
                   <Combobox value={field.value} onChange={(val) => {
                     field.onChange(val); 
                     // onSupplierChange?.(val);
-                  }}>
+                  }} disabled={disableAll}>
                     <div className="relative">
                       <Combobox.Input
                         // {...form.register ("supplierLocationNo", { required: true })}
                         // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
-                        className="w-full border border-gray-300 rounded-md p-2"
+                        className={`w-full border rounded-md p-2 ${
+                          disableAll
+                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                            : "bg-white"
+                        }`}
                         onChange={(e) => {
-                          setQuery(e.target.value);
+                          if (!disableAll) setQuery(e.target.value);
                           if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
                         }}// 
                         displayValue={(val: string | number) => {
@@ -294,7 +309,7 @@ const GRNForm = forwardRef(function grnForm(
                         }}
                         placeholder="Select Supplier Location"
                       />
-                      {filteredSuppliers.length > 0 && (
+                      {disableAll && filteredSuppliers.length > 0 && (
                         <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
                             <Combobox.Option key={partner.bpId} value={partner.bpId}>
@@ -352,7 +367,9 @@ const GRNForm = forwardRef(function grnForm(
                   }}>
                     <div className="relative">
                       <Combobox.Input
-                        className="w-full border border-gray-300 rounded-md p-2"
+                        className={`w-full border rounded-md p-2 ${
+                        disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                        }`}
                         onChange={(e) => {
                           setQuery(e.target.value);
                           if (errData?.poNo) errData.poNo = "";

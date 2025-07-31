@@ -52,7 +52,7 @@ export default function PurchaseOrderPage() {
   const [isDelete, setIsDelete] = useState(false);
   const initializedRef = useRef(false);
 
-   const deleteEnabled = !!editItem;
+  const deleteEnabled = !!editItem;
   const isAuthorised = editItem?.statusNo === 2;
   
 useEffect(() => {
