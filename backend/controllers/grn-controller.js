@@ -130,9 +130,10 @@ exports.getAllGRNs = (req, res) => {
   });
 };
 
-// GET GRN BY ID (with itemDetails)
+// GET GRN BY ID
 exports.getGRNById = (req, res) => {
   const grnId = req.params.id;
+
   const grnSql = `
     SELECT 
       G.*, 
@@ -145,60 +146,47 @@ exports.getGRNById = (req, res) => {
     JOIN BusinessPartner BP ON G.supplierLocationNo = BP.bpId
     WHERE G.grnId = ?
   `;
+
   const itemSql = `
     SELECT 
-      g.*, 
-      p.itemId, 
-      i.itemName, 
-      p.quantity AS poQuantity
-    FROM GRNItemDetail g
-    JOIN PurchaseOrderItemDetail p ON g.poitemDetailId = p.itemDetailId
+      p.itemDetailId AS poitemDetailId,
+      i.itemName,
+      p.quantity AS poQuantity,
+      COALESCE(pod.preRecivedQuantity, 0) AS preRecivedQuantity,
+      COALESCE(g.recievedQty, 0) AS recievedQty,
+      CASE WHEN g.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS selected
+    FROM PurchaseOrderItemDetail p
     JOIN ItemMaster i ON p.itemId = i.itemId
-    WHERE g.grnId = ?
-
+    LEFT JOIN GRNItemDetail g 
+           ON p.itemDetailId = g.poitemDetailId AND g.grnId = ?
+    LEFT JOIN (
+        SELECT poitemDetailId, SUM(recievedQty) AS preRecivedQuantity
+        FROM GRNItemDetail
+        WHERE grnId != ?
+        GROUP BY poitemDetailId
+    ) pod ON p.itemDetailId = pod.poitemDetailId
+    WHERE p.poId = (
+      SELECT poId FROM PurchaseOrder 
+      WHERE poNo = (SELECT poNo FROM GRN WHERE grnId = ?)
+    )
   `;
 
-    //   SELECT 
-  //   p.itemDetailId AS poitemDetailId,
-  //   i.itemName,
-  //   p.quantity AS poQuantity,
-  //   COALESCE(pod.preRecivedQuantity, 0) AS preRecivedQuantity,
-  //   COALESCE(g.recievedQty, 0) AS recievedQty,
-  //   CASE WHEN g.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS isSelected
-  // FROM PurchaseOrderItemDetail p
-  // JOIN ItemMaster i ON p.itemId = i.itemId
-  // LEFT JOIN GRNItemDetail g ON p.itemDetailId = g.poitemDetailId AND g.grnId = ?
-  // LEFT JOIN (
-  //   SELECT poitemDetailId, SUM(recievedQty) AS preRecivedQuantity 
-  //   FROM GRNItemDetail 
-  //   WHERE grnId != ? 
-  //   GROUP BY poitemDetailId
-  // ) pod ON p.itemDetailId = pod.poitemDetailId
-  // WHERE p.poId = (SELECT poId FROM GRN WHERE grnId = ?)
-
-  // SELECT 
-  //     g.*, 
-  //     p.itemId, 
-  //     i.itemName, 
-  //     p.quantity AS poQuantity
-  //   FROM GRNItemDetail g
-  //   JOIN PurchaseOrderItemDetail p ON g.poitemDetailId = p.itemDetailId
-  //   JOIN ItemMaster i ON p.itemId = i.itemId
-  //   WHERE g.grnId = ?
-
   db.query(grnSql, [grnId], (err, grn) => {
-    if (err || grn.length === 0)
+    if (err || grn.length === 0) {
       return res.status(500).json({ message: "Error fetching GRN" });
+    }
 
-    db.query(itemSql, [grnId], (err, items) => {
+    db.query(itemSql, [grnId, grnId, grnId], (err, items) => {
       if (err) {
-        console.error("Item SQL Error:", err);  
+        console.error("Item SQL Error:", err);
         return res.status(500).json({ message: "Error fetching items", error: err });
       }
+
       res.json({ ...grn[0], itemDetails: items });
     });
   });
 };
+
 
 // DELETE GRN
 exports.deleteGRN = (req, res) => {

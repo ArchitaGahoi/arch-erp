@@ -31,38 +31,50 @@ export default function UserMasterPage() {
     }
   }, [location.state]);
 
-  const validate = (data: any) => {
-    console.log("hh");
-    if (!data.code) {
-      setErrData(()=>{
-              return {code : "User Code is required"};
-            })
-    }
-    if (!data.emailId) {
-       setErrData(()=>{
-              return {emailId : "User Email is required"};
-            })
-    }
-    if (!data.password) {
-       setErrData(()=>{
-              return {password : "User Password is required"};
-            })
-    }
-    if (!data.userType) {
-       setErrData(()=>{
-              return {userType : "User Type is required"};
-            })
-    }
+  // const validate = (data: any) => {
+  //   console.log("hh");
+  //   if (!data.code) {
+  //     setErrData(()=>{
+  //             return {code : "User Code is required"};
+  //           })
+  //   }
+  //   if (!data.emailId) {
+  //      setErrData(()=>{
+  //             return {emailId : "User Email is required"};
+  //           })
+  //   }
+  //   if (!data.password) {
+  //      setErrData(()=>{
+  //             return {password : "User Password is required"};
+  //           })
+  //   }
+  //   if (!data.userType) {
+  //      setErrData(()=>{
+  //             return {userType : "User Type is required"};
+  //           })
+  //   }
 
-    console.log(errData);
+  //   console.log(errData);
 
-    if (Object.keys(errData).length > 0) 
-      {return false}
-    else
-      {return true}
-  };
+  //   if (Object.keys(errData).length > 0) 
+  //     {return false}
+  //   else
+  //     {return true}
+  // };
 
   // Save or update
+  
+  const validate = (data: any) => {
+    const newErrors: any = {};
+    if (!data.code) newErrors.code = "User Code is required";
+    if (!data.emailId) newErrors.emailId = "User Email is required";
+    if (!data.password && !editUser) newErrors.password = "User Password is required";
+    if (!data.userType) newErrors.userType = "User Type is required";
+
+    setErrData(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  
   const mapUserType = (type: string) => {
     if (type === "admin") return 1;
     if (type === "general") return 2;
@@ -79,37 +91,55 @@ export default function UserMasterPage() {
       userType: userTypeAsInt,
     };
 
-    if (editUser && editUser.userId) {
+    // if (editUser && editUser.userId) {
 
-      try{
-        await api.put(`/user-master/users/${editUser.userId}`, transformedData);
+    //   try{
+    //     await api.put(`/user-master/users/${editUser.userId}`, transformedData);
         
-        console.log("data");
-    } 
-    catch(err : Error | any){
-          console.log(err);
-          setErrData(()=>{
-            return {code : err.response.data.message};
-          })
-          return;
-      }
-    }
-    else {
-      try{ 
-        await api.post("/user-master/users", transformedData);
+    //     console.log("data");
+    // } 
+    // catch(err : Error | any){
+    //       console.log(err);
+    //       setErrData(()=>{
+    //         return {code : err.response.data.message};
+    //       })
+    //       return;
+    //   }
+    // }
+    // else {
+    //   try{ 
+    //     await api.post("/user-master/users", transformedData);
     
-      } catch(err: Error | any){
-          console.log(err);
-          setErrData(()=>{
-            return {code : err.response.data.message};
-          })
-          return;
-        }
-    }  
+    //   } catch(err: Error | any){
+    //       console.log(err);
+    //       setErrData(()=>{
+    //         return {code : err.response.data.message};
+    //       })
+    //       return;
+    //     }
+    // }  
 
-    setEditUser(null); // Clear form after save/update
-    formRef.current?.reset();  
-    setErrData({});
+    // setEditUser(null); // Clear form after save/update
+    // formRef.current?.reset();  
+    // setErrData({});
+
+    try {
+      if (editUser && editUser.userId) {
+        await api.put(`/user-master/users/${editUser.userId}`, transformedData);
+      } else {
+        await api.post("/user-master/users", transformedData);
+      }
+
+      setEditUser(null);
+      formRef.current?.reset();
+      setErrData({});
+    } catch (err: Error | any) {
+      console.error(err);
+      const backendErrors = err?.response?.data?.errors || {};
+      setErrData(backendErrors);
+    }
+  
+  
   };
 
   

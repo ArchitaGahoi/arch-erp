@@ -59,15 +59,23 @@ useEffect(() => {
     supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
     };
     console.log("enrichedEditItem--->", enrichedEditItem);
-    const mappedItems = (grnFullData.itemDetails || []).map((item: any) => ({
+    console.log("itemDetails from backend:", grnFullData.itemDetails);
+    const mappedItems = (grnFullData.itemDetails || []).map((item: any) => {
+    const poQty = parseFloat(item.poQuantity) || 0;
+    const pre = parseFloat(item.preRecivedQuantity) || 0;
+    const curr = parseFloat(item.recievedQty) || 0;
+
+    return {
       poitemDetailId: item.poitemDetailId,
       itemName: item.itemName,
-      poQuantity: item.poQuantity,
-      preRecivedQuantity: item.preRecivedQuantity || 0,
-      recivedQuantity: item.recievedQty || 0,
-      balance: item.poQuantity - ((item.preRecivedQuantity || 0) + (item.recievedQty || 0)),
-      selected: true
-    }));
+      poQuantity: poQty,
+      preRecivedQuantity: pre,
+      recivedQuantity: curr,
+      balance: poQty - (pre + curr),
+      selected: item.selected === 1
+    };
+  });
+
     setEditItem(enrichedEditItem);
     setItemDetails(mappedItems);
     // setTaxDetails(fullData.taxDetails || []);

@@ -114,7 +114,17 @@ const userMasterForm = forwardRef(function userMasterForm(
                   }}
                   maxLength={50}  />
                 </FormControl>
-                <FormMessage />
+                  <div className=" border-red-500 text-red-500 text-sm ">
+                    <ErrorMessage
+                      errors={form.formState.errors}
+                      name="emailId"
+                    />
+                    <ErrorMessage
+                      errors={form.formState.errors?.emailId}
+                      name="emailId"
+                    />
+                  </div>
+                  <div className="text-red-500 text-sm">{errData?.emailId}</div> 
               </FormItem>
             )}
           />

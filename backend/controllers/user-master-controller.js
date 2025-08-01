@@ -36,12 +36,17 @@ exports.addUser = async (req, res) => {
   if (!code || !emailId || !password || !userType) {
     return res.status(400).json({ message: "Missing required fields" });
   }
-  const checkSql = 'SELECT userId FROM UserMaster WHERE code = ?';
-  db.query(checkSql, [code], async (err, rows) => {
+  const checkSql = 'SELECT userId, code, emailId FROM UserMaster WHERE code = ? OR emailId = ?';
+  db.query(checkSql, [code, emailId], async (err, rows) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
-    if (rows.length > 0) {
-      return res.status(400).json({ message: 'User code must be unique' });
-    }
+      const errors = {};
+      if (rows.length > 0) {
+        const existing = rows[0];
+        if (existing.code === code) errors.code = "User Code must be unique";
+        if (existing.emailId === emailId) errors.emailId = "Email ID must be unique";
+
+        return res.status(400).json({ errors });
+      }
     try{
       const hashedPassword = await bcrypt.hash(password, 10);
       const sql = `
@@ -66,7 +71,6 @@ exports.updateUser = (req, res) => {
   const modifiedDate = new Date();
   const { id } = req.params;
 
-  // Get current UserCode for this id
   const getCurrentSql = 'SELECT code FROM UserMaster WHERE userId = ?';
   db.query(getCurrentSql, [id], (err, result) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
@@ -74,19 +78,30 @@ exports.updateUser = (req, res) => {
 
     const currentCode = result[0].code;
 
-    // If code is changing, check uniqueness
-    if (code !== currentCode) {
-      const checkSql = 'SELECT userId FROM UserMaster WHERE code = ? AND userId != ?';
-      db.query(checkSql, [code, id], (err, rows) => {
-        if (err) return res.status(500).json({ message: 'DB error', err });
-        if (rows.length > 0) {
-          return res.status(400).json({ message: 'User code must be unique' });
-        }
+    // First: check for email uniqueness
+    const checkEmailSql = 'SELECT userId FROM UserMaster WHERE emailId = ? AND userId != ?';
+    db.query(checkEmailSql, [emailId, id], (err, emailRows) => {
+      if (err) return res.status(500).json({ message: 'DB error', err });
+      if (emailRows.length > 0) {
+        return res.status(400).json({ errors: { emailId: "Email ID must be unique" } });
+      }
+
+      // Now: check for code uniqueness if it's changed
+      if (code !== currentCode) {
+        const checkCodeSql = 'SELECT userId FROM UserMaster WHERE code = ? AND userId != ?';
+        db.query(checkCodeSql, [code, id], (err, codeRows) => {
+          if (err) return res.status(500).json({ message: 'DB error', err });
+          if (codeRows.length > 0) {
+            return res.status(400).json({ errors: { code: "User Code must be unique" } });
+          }
+          // Both checks passed
+          doUpdate();
+        });
+      } else {
+        // Only email changed, code is the same
         doUpdate();
-      });
-    }else {
-      doUpdate();
-    }
+      }
+    });
 
     function doUpdate() {
       const sql = `
@@ -100,6 +115,7 @@ exports.updateUser = (req, res) => {
     }
   });
 };
+
 
 // Delete User
 exports.deleteUser = (req, res) => {
