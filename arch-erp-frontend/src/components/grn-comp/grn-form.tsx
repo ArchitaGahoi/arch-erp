@@ -149,8 +149,12 @@ const GRNForm = forwardRef(function grnForm(
 
   const fetchPOs = async () => {
     try {
-      const res = await api.get(`/purchase-order/${supplierId}`);
-      setPoOptions([res.data]);
+      const res = await api.get(`/purchase-order/authorised/${supplierId}`);
+      if (Array.isArray(res.data)) {
+        setPoOptions(res.data);
+      } else {
+        setPoOptions([]);
+      }
     } catch {
       setPoOptions([]);
     }
@@ -186,8 +190,10 @@ const GRNForm = forwardRef(function grnForm(
                     aria-invalid={errData?.grnNo ? "true" : "false"}
                     placeholder="GRN No" {...field}
                     onChange={(e) => {
+                      if (!disableAll) {
                       field.onChange(e);
                       if (errData?.grnNo) errData.grnNo = ""; // clear this specific error
+                      }
                     }}
                     maxLength={6} />
                 </FormControl>
@@ -209,7 +215,12 @@ const GRNForm = forwardRef(function grnForm(
                     }`}
                     type="date"
                     value={field.value?.toISOString().split("T")[0] || ""}
-                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                    onChange={(e) => {
+                      if (!disableAll) {
+                        field.onChange(new Date(e.target.value));
+                      }
+                    }}
+
                   />
                 </FormControl>
                 <FormMessage className="col-span-3 text-red-500 text-sm" />
@@ -309,7 +320,7 @@ const GRNForm = forwardRef(function grnForm(
                         }}
                         placeholder="Select Supplier Location"
                       />
-                      {disableAll && filteredSuppliers.length > 0 && (
+                      {!disableAll && filteredSuppliers.length > 0 && (
                         <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
                             <Combobox.Option key={partner.bpId} value={partner.bpId}>
@@ -336,9 +347,12 @@ const GRNForm = forwardRef(function grnForm(
                   <Combobox 
                     {...form.register ("poNo", { required: true })}
                     aria-invalid={errData?.poNo ? "true" : "false"}
-                    value={field.value} onChange={async(val) => {
+                    value={field.value} 
+                    onChange={async(val) => {
                     field.onChange(val);
+                      // if (isEdit) return;
                      const selectedPO = poOptions.find(po => po.poNo === val);
+                     
                     if (!selectedPO?.poId) {
                       console.warn("PO ID not found for selected PO No:", val);
                       return;
@@ -371,10 +385,11 @@ const GRNForm = forwardRef(function grnForm(
                         disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
                         }`}
                         onChange={(e) => {
+                          if (!disableAll) {
                           setQuery(e.target.value);
                           if (errData?.poNo) errData.poNo = "";
-                          
-                        }} // ✅ only filters, not changes value
+                          }
+                        }} 
                         displayValue={(val: string) => val}
                         placeholder="Select PO No"
                       />
@@ -403,7 +418,9 @@ const GRNForm = forwardRef(function grnForm(
                 <FormLabel>Challan No</FormLabel>
                 <FormControl>
                   <Input
-                    className="w-full border bg-white rounded-md p-2"
+                    className={`w-full border rounded-md p-2 ${
+                      disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                    }`}
                     {...field}
                     value={field.value || ""}
                     placeholder="Challan No"
@@ -411,8 +428,10 @@ const GRNForm = forwardRef(function grnForm(
                     {...form.register ("challanNo", { required: true })}
                     aria-invalid={errData?.challanNo ? "true" : "false"}
                     onChange={(e) => {
+                      if (!disableAll) {
                       field.onChange(e);
                       if (errData?.challanNo) errData.challanNo = "";
+                      }
                     }}
                   />
                 </FormControl>
@@ -427,10 +446,16 @@ const GRNForm = forwardRef(function grnForm(
               <div className="grid grid-cols-4 items-center gap-2">
                 <FormLabel className="row-span-1">Challan Date</FormLabel>
                 <FormControl className="row-span-1">
-                  <Input className="w-full border bg-white rounded-md p-2"
+                  <Input className={`w-full border rounded-md p-2 ${
+                      disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
+                    }`}
                     type="date"
                     value={field.value?.toISOString().split("T")[0] || ""}
-                    onChange={(e) => field.onChange(new Date(e.target.value))}
+                    onChange={(e) =>{ 
+                      if (!disableAll) {
+                      field.onChange(new Date(e.target.value))}
+                    }
+                  }
                   />
                 </FormControl>
                 <FormMessage className="col-span-3 text-red-500 text-sm" />
@@ -440,7 +465,7 @@ const GRNForm = forwardRef(function grnForm(
         </div>
       </form>
       
-      <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} />
+      {/* <ItemDetailGrid itemDetails={itemDetails} setItemDetails={setItemDetails} /> */}
     </Form>
   );
 });

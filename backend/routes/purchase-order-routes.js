@@ -5,6 +5,7 @@ const purchaseOrderController = require('../controllers/purchase-order-controlle
 
 router.get('/', purchaseOrderController.getAllPurchaseOrders);
 router.get('/:id', purchaseOrderController.getPurchaseOrderById);
+router.get('/authorised/:supplierLocationNo', purchaseOrderController.getAuthorisedPOsBySupplier);
 router.post('/',authMiddleware, purchaseOrderController.createPurchaseOrder);
 router.put('/:id',authMiddleware, purchaseOrderController.updatePurchaseOrder);
 router.delete('/:id', purchaseOrderController.deletePurchaseOrder);

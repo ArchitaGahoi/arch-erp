@@ -162,6 +162,27 @@ exports.getPurchaseOrderById = (req, res) => {
   });
 };
 
+// Get Authorised Purchase Orders by Supplier Location
+exports.getAuthorisedPOsBySupplier = (req, res) => {
+  const supplierLocationNo = req.params.supplierLocationNo;
+
+  const sql = `
+    SELECT poId, poNo
+    FROM PurchaseOrder
+    WHERE supplierLocationNo = ? AND statusNo = 2
+  `;
+
+  db.query(sql, [supplierLocationNo], (err, result) => {
+    if (err) {
+      console.error("DB Error (Fetch Authorised POs):", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    res.json(result);
+  });
+};
+
+
 
 
 // Update Purchase Order 

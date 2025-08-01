@@ -15,6 +15,8 @@ const getPreReceivedQty = (poItemDetailId) => {
   });
 };
 
+
+
 //  CREATE GRN
 exports.createGRN = (req, res) => {
   const {
@@ -127,7 +129,36 @@ exports.getGRNById = (req, res) => {
     JOIN PurchaseOrderItemDetail p ON g.poitemDetailId = p.itemDetailId
     JOIN ItemMaster i ON p.itemId = i.itemId
     WHERE g.grnId = ?
+
   `;
+
+    //   SELECT 
+  //   p.itemDetailId AS poitemDetailId,
+  //   i.itemName,
+  //   p.quantity AS poQuantity,
+  //   COALESCE(pod.preRecivedQuantity, 0) AS preRecivedQuantity,
+  //   COALESCE(g.recievedQty, 0) AS recievedQty,
+  //   CASE WHEN g.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS isSelected
+  // FROM PurchaseOrderItemDetail p
+  // JOIN ItemMaster i ON p.itemId = i.itemId
+  // LEFT JOIN GRNItemDetail g ON p.itemDetailId = g.poitemDetailId AND g.grnId = ?
+  // LEFT JOIN (
+  //   SELECT poitemDetailId, SUM(recievedQty) AS preRecivedQuantity 
+  //   FROM GRNItemDetail 
+  //   WHERE grnId != ? 
+  //   GROUP BY poitemDetailId
+  // ) pod ON p.itemDetailId = pod.poitemDetailId
+  // WHERE p.poId = (SELECT poId FROM GRN WHERE grnId = ?)
+
+  // SELECT 
+  //     g.*, 
+  //     p.itemId, 
+  //     i.itemName, 
+  //     p.quantity AS poQuantity
+  //   FROM GRNItemDetail g
+  //   JOIN PurchaseOrderItemDetail p ON g.poitemDetailId = p.itemDetailId
+  //   JOIN ItemMaster i ON p.itemId = i.itemId
+  //   WHERE g.grnId = ?
 
   db.query(grnSql, [grnId], (err, grn) => {
     if (err || grn.length === 0)

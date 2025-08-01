@@ -140,8 +140,11 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     aria-invalid={errData?.poNo ? "true" : "false"}
                     placeholder="PO No" {...field}
                     onChange={(e) => {
+                      if (!disableAll) {
                       field.onChange(e);
                       if (errData?.poNo) errData.poNo = ""; // clear this specific error
+                      }
+
                     }}
                     maxLength={6} />
                 </FormControl>
@@ -166,8 +169,11 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     type="date"
                     value={field.value?.toISOString().split("T")[0] || ""}
                     onChange={(e) => {
-                      if (errData?.poDate) errData.poDate = "";
-                      field.onChange(new Date(e.target.value))
+                      if (!disableAll) {
+                        if (errData?.poDate) errData.poDate = "";
+                        field.onChange(new Date(e.target.value))  
+                      }
+                      
                     }}
                   />
                 </FormControl>

@@ -13,9 +13,10 @@ interface Props {
   itemDetails: ItemDetail[];
   setItemDetails: (items: ItemDetail[]) => void;
   onRowClick?: (item: ItemDetail) => void;
+  isReadOnly?: boolean;
 }
 
-const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => {
+const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: Props) => {
   // const handleDelete = (index: number) => {
   //   const updated = [...itemDetails];
   //   updated.splice(index, 1);
@@ -51,6 +52,8 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
                 <input
                   type="checkbox"
                   checked={item.selected || false}
+                  disabled={isReadOnly}
+                  className={isReadOnly ? "cursor-not-allowed" : ""}
                   onChange={(e) => {
                     const updated = [...itemDetails];
                     updated[index].selected = e.target.checked;
@@ -69,6 +72,8 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
                   min={0}
                   max={item.poQuantity - item.preRecivedQuantity}
                   value={item.recivedQuantity}
+                  disabled={isReadOnly}
+                  className={`border rounded p-1 w-full ${isReadOnly ? "bg-gray-200 text-gray-500" : ""}`}
                   onChange={(e) => {
                     const inputQty = Number(e.target.value);
                     const maxQty = item.poQuantity - item.preRecivedQuantity;
@@ -80,7 +85,6 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, }: Props) => 
                     updated[index].balance = item.poQuantity - (item.preRecivedQuantity + inputQty);
                     setItemDetails(updated);
                   }}
-                  className="border rounded p-1 w-full"
                 />
               </td>
               {/* <td>
