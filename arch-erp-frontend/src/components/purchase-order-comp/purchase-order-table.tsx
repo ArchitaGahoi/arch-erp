@@ -35,7 +35,13 @@ const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
             <td className="p-2 border">{order.poNo}</td>
             <td className="p-2 border">{order.poDate.toLocaleString()}</td>
             <td className="p-2 border">{statusNo?.label}</td>
-            <td className="p-2 border">{order.supplierLocationLabel || order.supplierLocationNo}</td>
+            <td className="p-2 border">
+              {order.bpName
+                ? `${order.bpName} (${order.bpCode}) – ${order.bpAddress}`
+                : order.supplierLocationNo}
+            </td>
+
+
             <td className="p-2 border">{Number(order.netAmount).toFixed(2)}</td>
             <td className="p-2 border">
               <Button onClick={() => onEdit(order)} variant="outline">

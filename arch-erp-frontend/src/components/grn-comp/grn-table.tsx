@@ -37,7 +37,12 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
             <td className="p-2 border">{receipt.grnNo}</td>
             <td className="p-2 border">{receipt.grnDate.toLocaleString()}</td>
             <td className="p-2 border">{statusNo?.label}</td>
-            <td className="p-2 border">{receipt.supplierLocationLabel || receipt.supplierLocationNo}</td>
+            <td className="p-2 border">
+              {receipt.bpName
+                ? `${receipt.bpName} (${receipt.bpCode}) – ${receipt.bpAddress}`
+                : receipt.actualBpId ?? receipt.supplierLocationNo}
+            </td>
+
             <td className="p-2 border">{receipt.poNo}</td>
             <td className="p-2 border">{receipt.challanNo}</td>
             <td className="p-2 border">{receipt.challanDate.toLocaleString()}</td>

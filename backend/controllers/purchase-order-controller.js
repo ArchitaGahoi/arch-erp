@@ -119,9 +119,28 @@ exports.createPurchaseOrder = (req, res) => {
   });
 };
 
-// Get All Purchase Orders
+// // Get All Purchase Orders
+// exports.getAllPurchaseOrders = (req, res) => {
+//   db.query('SELECT * FROM PurchaseOrder', (err, result) => {
+//     if (err) return res.status(500).json({ message: 'DB error', err });
+//     res.json(result);
+//   });
+// };
+
+// Get All Purchase Orders with Supplier Location Info
 exports.getAllPurchaseOrders = (req, res) => {
-  db.query('SELECT * FROM PurchaseOrder', (err, result) => {
+  const sql = `
+    SELECT 
+      PO.*, 
+      BP.bpName, 
+      BP.bpCode, 
+      BP.bpAddress
+    FROM PurchaseOrder PO
+    JOIN BusinessPartner BP ON PO.supplierLocationNo = BP.bpId
+    ORDER BY PO.poId DESC
+  `;
+
+  db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
     res.json(result);
   });

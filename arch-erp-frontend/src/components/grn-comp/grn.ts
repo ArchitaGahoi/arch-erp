@@ -8,4 +8,9 @@ export interface GRN {
   poNo: string
   challanNo: string
   challanDate: string
+  actualBpId?: number;
+  bpName?: string;
+  bpCode?: string;
+  bpAddress?: string;
+
 }

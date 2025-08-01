@@ -6,4 +6,8 @@ export interface PO {
   supplierLocationNo: string;
   supplierLocationLabel?: string;
   netAmount: number;
+  bpName?: string;
+  bpCode?: string;
+  bpAddress?: string;
+
 }

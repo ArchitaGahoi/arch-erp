@@ -125,7 +125,7 @@ const GRNForm = forwardRef(function grnForm(
           setSupplierOptions(res.data);
         }
       } catch (err) {
-        setSupplierOptions([]);
+        setSupplierOptions([]); 
       } finally {
         setLoading(false);
       }
@@ -357,6 +357,7 @@ const GRNForm = forwardRef(function grnForm(
                       console.warn("PO ID not found for selected PO No:", val);
                       return;
                     }
+                    //form.setValue("supplierLocationNo", selectedPO.poId);
 
                     try {
                       const res = await api.get(`/purchase-order/${selectedPO.poId}`);

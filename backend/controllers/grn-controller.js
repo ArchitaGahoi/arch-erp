@@ -103,7 +103,27 @@ exports.createGRN = (req, res) => {
 
 // GET ALL GRNs
 exports.getAllGRNs = (req, res) => {
-  const sql = "SELECT * FROM GRN";
+  const sql = `SELECT 
+    G.grnId,
+    G.grnNo,
+    G.grnDate,
+    G.statusNo,
+    G.poNo,
+    G.challanNo,
+    G.challanDate,
+    G.createdBy,
+    G.createdDate,
+    G.modifiedBy,
+    G.modifiedDate,
+    PO.poNo AS purchaseOrderNo,
+    BP.bpCode,
+    BP.bpName,
+    BP.bpAddress
+  FROM GRN G
+  JOIN PurchaseOrder PO ON G.poNo = PO.poNo
+  JOIN BusinessPartner BP ON G.supplierLocationNo = BP.bpId
+  ORDER BY G.grnId DESC
+`;
   db.query(sql, (err, result) => {
     if (err) return res.status(500).json({ message: "DB error", err });
     res.json(result);
@@ -114,10 +134,16 @@ exports.getAllGRNs = (req, res) => {
 exports.getGRNById = (req, res) => {
   const grnId = req.params.id;
   const grnSql = `
-    SELECT g.*, bp.bpName, bp.bpCode, bp.bpAddress
-    FROM GRN g
-    JOIN BusinessPartner bp ON g.supplierLocationNo = bp.bpId
-    WHERE g.grnId = ?
+    SELECT 
+      G.*, 
+      PO.poNo AS purchaseOrderNo, 
+      BP.bpCode, 
+      BP.bpName, 
+      BP.bpAddress
+    FROM GRN G
+    JOIN PurchaseOrder PO ON G.poNo = PO.poNo
+    JOIN BusinessPartner BP ON G.supplierLocationNo = BP.bpId
+    WHERE G.grnId = ?
   `;
   const itemSql = `
     SELECT 
