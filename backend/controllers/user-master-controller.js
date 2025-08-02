@@ -161,7 +161,7 @@ exports.loginUser = async (req, res) => {
 
     // Use UserId and UserType for token if present, else fallback
     const token = jwt.sign(
-      { userId: user.userId, userType: user.userType },
+      { userId: user.userId, userType: user.userType, code: user.code },
       process.env.JWT_SECRET,
       { expiresIn: '8h' }
     );

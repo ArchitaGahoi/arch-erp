@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 
 type User = {
   userId: number;
+  code: string;
   userType: number;
   emailId?: string;
 };
@@ -37,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { token } = res.data as { token: string };
       // Decode token to get user info (or get from backend response)
       const payload = JSON.parse(atob(token.split(".")[1]));
-      const userObj: User = { userId: payload.userId, userType: payload.userType, emailId };
+      const userObj: User = { userId: payload.userId, code: payload.code, userType: payload.userType, emailId };
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(userObj));
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;

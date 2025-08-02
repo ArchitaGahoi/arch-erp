@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, logout } = useAuth();
 
   const data = {
-    code: user?.userId?.toString() || "NA",
+    code: user?.code?.toString() || "NA",
     emailId: user?.emailId || "No Email",
     avatar: "/avatars/shadcn.jpg"
   };
