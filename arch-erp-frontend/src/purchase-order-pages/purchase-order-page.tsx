@@ -127,10 +127,10 @@ useEffect(() => {
     };
     console.log("asdfghj",finalData);
 
-    if (!finalData.poNo || !finalData.poDate || !finalData.statusNo || !finalData.supplierLocationNo) {
-    toast.error("Some required fields are missing: PO No, Date, Status, or Supplier Location.");
-    return;
-    }
+    // if (!finalData.poNo || !finalData.poDate || !finalData.statusNo || !finalData.supplierLocationNo) {
+    // toast.error("Some required fields are missing: PO No, Date, Status, or Supplier Location.");
+    // return;
+    // }
 
     try {
       if (editItem?.poId) {

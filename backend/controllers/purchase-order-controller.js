@@ -18,11 +18,11 @@ exports.createPurchaseOrder = (req, res) => {
   if (!poNo || !poDate || !statusNo || !supplierLocationNo) {
     return res.status(400).json({ 
       errors: {
-        poNo: "PO Number is required",
-        poDate: "PO Date is required",
-        statusNo: "Status is required",
-        supplierLocationNo: "Supplier Location is required",
-      } 
+        poNo: !poNo ? "PO Number is required" : undefined,
+        poDate: !poDate ? "PO Date is required" : undefined,
+        statusNo: !statusNo ? "Status is required" : undefined,
+        supplierLocationNo: !supplierLocationNo ? "Supplier Location is required" : undefined,
+      }
     });
   }
 

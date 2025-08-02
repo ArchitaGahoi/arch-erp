@@ -242,7 +242,7 @@ const GRNForm = forwardRef(function grnForm(
                     );
 
               return (
-                <FormItem>
+                <FormItem className={`flex-1 ${getErrorClass("statusNo")}`}>
                   <FormLabel>GRN Status</FormLabel>
                   <FormControl>
                     <Combobox value={field.value} onChange={field.onChange} disabled={disableAll}>
@@ -291,7 +291,7 @@ const GRNForm = forwardRef(function grnForm(
             name="supplierLocationNo"
             control={form.control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={`flex-1 ${getErrorClass("supplierLocationNo")}`}>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
                   <Combobox value={field.value} onChange={(val) => {
@@ -303,10 +303,9 @@ const GRNForm = forwardRef(function grnForm(
                         // {...form.register ("supplierLocationNo", { required: true })}
                         // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
                         className={`w-full border rounded-md p-2 ${
-                          disableAll
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-white"
-                        }`}
+                          getErrorClass("supplierLocationNo") || ""
+                        } 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
                         onChange={(e) => {
                           if (!disableAll) setQuery(e.target.value);
                           if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
@@ -341,7 +340,7 @@ const GRNForm = forwardRef(function grnForm(
             name="poNo"
             control={form.control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className={`flex-1 ${getErrorClass("poNo")}`}>
                 <FormLabel>PO No</FormLabel>
                 <FormControl>
                   <Combobox 
@@ -383,8 +382,9 @@ const GRNForm = forwardRef(function grnForm(
                     <div className="relative">
                       <Combobox.Input
                         className={`w-full border rounded-md p-2 ${
-                        disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"
-                        }`}
+                          getErrorClass("poNo") || ""
+                        } 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
                         onChange={(e) => {
                           if (!disableAll) {
                           setQuery(e.target.value);

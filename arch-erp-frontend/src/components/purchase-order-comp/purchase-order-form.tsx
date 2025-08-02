@@ -196,7 +196,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     );
 
               return (
-                <FormItem>
+                <FormItem className={`flex-1 ${getErrorClass("statusNo")}`}>
                   <FormLabel>PO Status</FormLabel>
                   <FormControl>
                     <Combobox value={field.value} onChange={field.onChange} disabled={disableAll}>
@@ -204,8 +204,9 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                         <Combobox.Input
                           disabled={disableAll}
                           className={`w-full border rounded-md p-2 ${
-                            disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
-                          }`}
+                            getErrorClass("statusNo") || ""
+                          } 
+                          ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
                           onChange={(e) => {
                             if (!disableAll) {
                               field.onChange(e.target.value);
@@ -248,7 +249,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
               console.log("ComboBox field.value:", field.value);
               console.log("supplierOptions:", supplierOptions);
               return (
-              <FormItem>
+              <FormItem className={`flex-1 ${getErrorClass("supplierLocationNo")}`}>
                 <FormLabel>Supplier Location</FormLabel>
                 <FormControl>
                   {/* <Combobox 
@@ -264,8 +265,8 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                       <Combobox.Input
                         disabled={disableAll}
                         className={`w-full border rounded-md p-2 ${
-                          disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
-                        }`}
+                          getErrorClass("supplierLocationNo") || ""
+                        } ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
                         onChange={(e) => {
                           if (!disableAll) setQuery(e.target.value);
                         }}
