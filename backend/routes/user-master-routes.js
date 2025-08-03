@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userMasterController = require('../controllers/user-master-controller');
+const { changePassword } = require("../controllers/user-master-controller");
 const { authMiddleware, isAdmin } = require('../middleware/auth-middleware');
 
 
@@ -23,6 +24,10 @@ router.put('/:id', authMiddleware, userMasterController.updateUser);
 
 // Delete user (admin only)
 router.delete('/:id', authMiddleware, isAdmin, userMasterController.deleteUser);
+
+router.post('/forget-password', userMasterController.forgetPassword);
+router.post('/reset-password', userMasterController.resetPassword);
+router.post('/change-password', authMiddleware, userMasterController.changePassword);
 
 
 module.exports = router;

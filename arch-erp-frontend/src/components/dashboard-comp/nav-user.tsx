@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react";
+import{ api } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
@@ -43,6 +44,11 @@ export function NavUser({
   onLogout: () => void
 }) {
   const [open, setOpen] = useState(false);
+  const [showChange, setShowChange] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [changeMsg, setChangeMsg] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -102,6 +108,10 @@ export function NavUser({
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowChange(true)}>
+                <IconUserCircle />
+                Change Password
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setOpen(true)}>
                 <IconLogout />
                 Log out
@@ -120,6 +130,76 @@ export function NavUser({
               <button onClick={() => setOpen(false)} className="btn btn-secondary">No</button>
               <button onClick={handleLogout} className="btn btn-primary">Yes</button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={showChange} onOpenChange={setShowChange}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+            </DialogHeader>
+            <form
+              onSubmit={async e => {
+                e.preventDefault();
+
+                // Prevent submission if passwords don't match
+                if (!newPassword || !confirmPassword) {
+                  setChangeMsg("Both new and confirm password are required.");
+                  return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                  setChangeMsg("Passwords do not match.");
+                  return;
+                }
+
+                try {
+                  await api.post("/user-master/change-password", { oldPassword, newPassword });
+                  setChangeMsg("Password changed successfully.");
+                  setTimeout(() => setShowChange(false), 1200);
+                } catch (err: any) {
+                  setChangeMsg(err.response?.data?.message || "Error");
+                }
+              }}
+              className="space-y-4"
+            >
+
+              <input
+                className="w-full border p-2 rounded"
+                type="password"
+                placeholder="Old password"
+                value={oldPassword}
+                onChange={e => {
+                  setOldPassword(e.target.value);
+                  setChangeMsg(""); 
+                }}
+                required
+              />
+              <input
+                className="w-full border p-2 rounded"
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={e => {setNewPassword(e.target.value);
+                  setChangeMsg("");
+                }}
+                required
+              />
+              <input
+                className="w-full border p-2 rounded"
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={e => {setConfirmPassword(e.target.value)
+                  setChangeMsg("");
+                }}
+                required
+              />
+              {newPassword && confirmPassword && newPassword !== confirmPassword && (
+                <div className="text-red-500 text-sm">Passwords do not match</div>
+              )}
+              <button className="btn btn-primary w-full" type="submit">Change Password</button>
+              {changeMsg && <div className="text-green-600">{changeMsg}</div>}
+            </form>
           </DialogContent>
         </Dialog>
     </>

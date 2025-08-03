@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/login-comp/auth-context";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Link } from "react-router-dom";  
 
 export function LoginForm({
   className,
@@ -67,6 +68,11 @@ export function LoginForm({
               {error && (
                 <div className="text-red-500 text-sm">{error}</div>
               )}
+              <p className="text-sm text-right mt-2">
+                <Link to="/forgot-password" className="text-blue-600 hover:underline">
+                  Forgot Password?
+                </Link>
+              </p>
               <div className="flex flex-col gap-3">
                 <Button type="submit" className="w-full">
                   Login

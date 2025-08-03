@@ -13,6 +13,7 @@ import PurchaseOrderSearchPage from "./purchase-order-pages/purchase-order-searc
 import GRNPage from "./grn-pages/grn-page";
 import GRNSearchPage from "./grn-pages/grn-search-page";
 import Layout from "@/components/layout-comp/layout";
+import { ForgetPasswordForm } from "@/components/login-comp/forget-password-form";
 
 
 import React from "react";
@@ -28,6 +29,7 @@ export default function App() {
     <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Page />} />
+          <Route path="/forgot-password" element={<ForgetPasswordForm />} />
           <Route path="/" element={<Navigate to="/login" />} /> 
           <Route element= {<Layout/>} >
           <Route

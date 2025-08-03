@@ -1,11 +1,74 @@
 const db = require('../config/db');
-
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const globalData = require('../config/global-data.json');
 const userTypes = globalData.userTypes;
 
 const secretKey = process.env.JWT_SECRET;
+
+// In-memory store for reset tokens (for demo; use DB/Redis in production)
+const resetTokens = {};
+
+// FORGET PASSWORD: Generate and "send" reset token
+exports.forgetPassword = (req, res) => {
+  const { emailId } = req.body;
+  if (!emailId) return res.status(400).json({ message: "Email is required" });
+
+  const sql = 'SELECT userId FROM UserMaster WHERE emailId = ?';
+  db.query(sql, [emailId], (err, rows) => {
+    if (err) return res.status(500).json({ message: "DB error", err });
+    if (!rows.length) return res.status(404).json({ message: "User not found" });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    resetTokens[token] = { userId: rows[0].userId, expires: Date.now() + 15 * 60 * 1000 }; // 15 min
+
+    // In production, send token via email. Here, return it for demo.
+    res.json({ message: "Reset token generated", token });
+  });
+};
+
+// RESET PASSWORD: Use token to set new password
+exports.resetPassword = (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ message: "Token and password required" });
+
+  const data = resetTokens[token];
+  if (!data || data.expires < Date.now()) return res.status(400).json({ message: "Invalid or expired token" });
+
+  bcrypt.hash(password, 10, (err, hash) => {
+    if (err) return res.status(500).json({ message: "Hash error", err });
+    const sql = 'UPDATE UserMaster SET password = ? WHERE userId = ?';
+    db.query(sql, [hash, data.userId], (err) => {
+      if (err) return res.status(500).json({ message: "DB error", err });
+      delete resetTokens[token];
+      res.json({ message: "Password reset successful" });
+    });
+  });
+};
+
+// CHANGE PASSWORD: Authenticated user changes password
+exports.changePassword = (req, res) => {
+  console.log("Decoded user:", req.user);
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user.userId;
+  if (!oldPassword || !newPassword) return res.status(400).json({ message: "Both passwords required" });
+
+  const sql = 'SELECT password FROM UserMaster WHERE userId = ?';
+  db.query(sql, [userId], async (err, rows) => {
+    if (err) return res.status(500).json({ message: "DB error", err });
+    if (!rows.length) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(oldPassword, rows[0].password);
+    if (!isMatch) return res.status(400).json({ message: "Old password incorrect" });
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    db.query('UPDATE UserMaster SET password = ? WHERE userId = ?', [hash, userId], (err) => {
+      if (err) return res.status(500).json({ message: "DB error", err });
+      res.json({ message: "Password changed successfully" });
+    });
+  });
+};
 
 // Get all Users (for main table)
 exports.getAllUsers = (req, res) => {
