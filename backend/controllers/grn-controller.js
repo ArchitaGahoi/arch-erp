@@ -17,11 +17,109 @@ const getPreReceivedQty = (poItemDetailId) => {
 
 
 
-//  CREATE GRN
+// //  CREATE GRN
+// exports.createGRN = (req, res) => {
+//   const {
+//     grnNo, grnDate, statusNo, supplierLocationNo, poNo,
+//     challanNo, challanDate, itemDetails
+//   } = req.body;
+
+//   const createdBy = req.user.id;
+//   const createdDate = new Date().toISOString().slice(0, 19).replace("T", " ");
+
+//   if (!grnNo || !grnDate || !statusNo || !supplierLocationNo || !poNo || !challanNo || !challanDate) {
+//     return res.status(400).json({
+//       errors: {
+//         grnNo: !grnNo ? "GRN No is required" : undefined,
+//         grnDate: !grnDate ? "GRN Date is required" : undefined,
+//         statusNo: !statusNo ? "Status is required" : undefined,
+//         supplierLocationNo: !supplierLocationNo ? "Supplier Location is required" : undefined,
+//         poNo: !poNo ? "PO No is required" : undefined,
+//         challanNo: !challanNo ? "Challan No is required" : undefined,
+//         challanDate: !challanDate ? "Challan Date is required" : undefined,
+//       }
+//     });
+//   }
+
+//   // Check for duplicate GRN No
+//   const checkSql = "SELECT grnId FROM GRN WHERE grnNo = ?";
+//   db.query(checkSql, [grnNo], (err, rows) => {
+//     if (err) {
+//       console.error("DB Error (Check GRN No):", err);
+//       return res.status(500).json({ message: "DB error", error: err });
+//     }
+
+//     if (rows.length > 0) {
+//       return res.status(400).json({ errors: { grnNo: "GRN Number must be unique" } });
+//     }
+  
+//     // Check for duplicate Challan No
+//     const checkChallanSql = "SELECT grnId FROM GRN WHERE challanNo = ?";
+//     db.query(checkChallanSql, [challanNo], (err, challanRows) => {
+//       if (err) {
+//         console.error("DB Error (Check Challan No):", err);
+//         return res.status(500).json({ message: "DB error", error: err });
+//       }
+
+//       if (challanRows.length > 0) {
+//         return res.status(400).json({ errors: { challanNo: "Challan Number must be unique" } });
+//       }
+
+//     // Insert GRN Header
+//     const insertSql = ` 
+//       INSERT INTO GRN (grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate)
+//       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     `;
+
+//     db.query(
+//       insertSql,
+//       [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate],
+//       (err, result) => {
+//         if (err) {
+//           console.error("DB Error (Insert GRN):", err);
+//           return res.status(500).json({ message: "Insert failed", error: err });
+//         }
+
+//         const grnId = result.insertId;
+
+//         // Validate item details
+//         if (!Array.isArray(itemDetails) || itemDetails.length === 0) {
+//           return res.status(400).json({ message: "At least one item detail is required" });
+//         }
+
+//         // Insert GRN item details
+//         for (let i = 0; i < itemDetails.length; i++) {
+//           const item = itemDetails[i];
+//           const itemSql = `
+//             INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty)
+//             VALUES (?, ?, ?)
+//           `;
+
+//           db.query(itemSql, [grnId, item.poitemDetailId, item.recievedQty], (err) => {
+//             if (err) {
+//               console.error("DB Error (Insert GRN Item):", err);
+//               return res.status(500).json({ message: "Item insert failed", error: err });
+//             }
+//           });
+//         }
+
+//         // Final response
+//         res.json({ message: "GRN created successfully", grnId });
+//       }
+//     );
+//   });
+// };
+
 exports.createGRN = (req, res) => {
   const {
-    grnNo, grnDate, statusNo, supplierLocationNo, poNo,
-    challanNo, challanDate, itemDetails
+    grnNo,
+    grnDate,
+    statusNo,
+    supplierLocationNo,
+    poNo,
+    challanNo,
+    challanDate,
+    itemDetails,
   } = req.body;
 
   const createdBy = req.user.id;
@@ -37,64 +135,80 @@ exports.createGRN = (req, res) => {
         poNo: !poNo ? "PO No is required" : undefined,
         challanNo: !challanNo ? "Challan No is required" : undefined,
         challanDate: !challanDate ? "Challan Date is required" : undefined,
-      }
+      },
     });
   }
 
-  // Check for duplicate GRN No
-  const checkSql = "SELECT grnId FROM GRN WHERE grnNo = ?";
-  db.query(checkSql, [grnNo], (err, rows) => {
+  // Step 1: Check for duplicate GRN No
+  const checkGrnSql = "SELECT grnId FROM GRN WHERE grnNo = ?";
+  db.query(checkGrnSql, [grnNo], (err, grnRows) => {
     if (err) {
       console.error("DB Error (Check GRN No):", err);
       return res.status(500).json({ message: "DB error", error: err });
     }
 
-    if (rows.length > 0) {
+    if (grnRows.length > 0) {
       return res.status(400).json({ errors: { grnNo: "GRN Number must be unique" } });
     }
 
-    // Insert GRN Header
-    const insertSql = `
-      INSERT INTO GRN (grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    db.query(
-      insertSql,
-      [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate],
-      (err, result) => {
-        if (err) {
-          console.error("DB Error (Insert GRN):", err);
-          return res.status(500).json({ message: "Insert failed", error: err });
-        }
-
-        const grnId = result.insertId;
-
-        // Validate item details
-        if (!Array.isArray(itemDetails) || itemDetails.length === 0) {
-          return res.status(400).json({ message: "At least one item detail is required" });
-        }
-
-        // Insert GRN item details
-        for (let i = 0; i < itemDetails.length; i++) {
-          const item = itemDetails[i];
-          const itemSql = `
-            INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty)
-            VALUES (?, ?, ?)
-          `;
-
-          db.query(itemSql, [grnId, item.poitemDetailId, item.recievedQty], (err) => {
-            if (err) {
-              console.error("DB Error (Insert GRN Item):", err);
-              return res.status(500).json({ message: "Item insert failed", error: err });
-            }
-          });
-        }
-
-        // Final response
-        res.json({ message: "GRN created successfully", grnId });
+    // Step 2: Check for duplicate Challan No
+    const checkChallanSql = "SELECT grnId FROM GRN WHERE challanNo = ?";
+    db.query(checkChallanSql, [challanNo], (err, challanRows) => {
+      if (err) {
+        console.error("DB Error (Check Challan No):", err);
+        return res.status(500).json({ message: "DB error", error: err });
       }
-    );
+
+      if (challanRows.length > 0) {
+        return res.status(400).json({ errors: { challanNo: "Challan Number must be unique" } });
+      }
+
+      // Step 3: Insert GRN Header
+      const insertSql = `
+        INSERT INTO GRN (grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertSql,
+        [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, createdBy, createdDate],
+        (err, result) => {
+          if (err) {
+            console.error("DB Error (Insert GRN):", err);
+            return res.status(500).json({ message: "Insert failed", error: err });
+          }
+
+          const grnId = result.insertId;
+
+          if (!Array.isArray(itemDetails) || itemDetails.length === 0) {
+            return res.status(400).json({ message: "At least one item detail is required" });
+          }
+
+          // Step 4: Insert GRN Item Details
+          let pending = itemDetails.length;
+
+          for (let i = 0; i < itemDetails.length; i++) {
+            const item = itemDetails[i];
+            const itemSql = `
+              INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty)
+              VALUES (?, ?, ?)
+            `;
+
+            db.query(itemSql, [grnId, item.poitemDetailId, item.recievedQty], (err) => {
+              if (err) {
+                console.error("DB Error (Insert GRN Item):", err);
+                return res.status(500).json({ message: "Item insert failed", error: err });
+              }
+
+              pending--;
+              if (pending === 0) {
+                res.json({ message: "GRN created successfully", grnId });
+              }
+            });
+          }
+        }
+      );
+    });
   });
 };
 
@@ -205,48 +319,178 @@ exports.deleteGRN = (req, res) => {
   });
 };
 
+// // UPDATE GRN
+// exports.updateGRN = async (req, res) => {
+//   const grnId = req.params.id;
+//   const {
+//     grnNo, grnDate, statusNo, supplierLocationNo, poNo,
+//     challanNo, challanDate, itemDetails
+//   } = req.body;
+//   const modifiedBy = req.user.id;
+//   const modifiedDate = new Date();
+
+//   // Fetch current GRN
+//   db.query("SELECT * FROM GRN WHERE grnId = ?", [grnId], async (err, result) => {
+//     if (err || result.length === 0) return res.status(404).json({ message: "GRN not found" });
+
+//     if (result[0].statusNo !== 1)
+//       return res.status(400).json({ message: "Only GRNs with status 'Initialised' can be edited" });
+
+//     // Update GRN
+//     const updateSql = `
+//       UPDATE GRN
+//       SET grnNo = ?, grnDate = ?, statusNo = ?, supplierLocationNo = ?, poNo = ?, challanNo = ?, challanDate = ?, modifiedBy = ?, modifiedDate = ?
+//       WHERE grnId = ?
+//     `;
+//     db.query(updateSql, [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, modifiedBy, modifiedDate, grnId], (err) => {
+//       if (err) return res.status(500).json({ message: "Update failed", err });
+
+//       // Delete existing item details
+//       db.query("DELETE FROM GRNItemDetail WHERE grnId = ?", [grnId], async (err) => {
+//         if (err) return res.status(500).json({ message: "Failed to clear old items", err });
+
+//         // Insert updated items
+//         for (const item of itemDetails) {
+//           const { poitemDetailId, recievedQty } = item;
+//           db.query("INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty) VALUES (?, ?, ?)",
+//             [grnId, poitemDetailId, recievedQty]);
+//         }
+
+//         res.json({ message: "GRN updated" });
+//       });
+//     });
+//   });
+// };
+
 // UPDATE GRN
 exports.updateGRN = async (req, res) => {
   const grnId = req.params.id;
   const {
-    grnNo, grnDate, statusNo, supplierLocationNo, poNo,
-    challanNo, challanDate, itemDetails
+    grnNo,
+    grnDate,
+    statusNo,
+    supplierLocationNo,
+    poNo,
+    challanNo,
+    challanDate,
+    itemDetails,
   } = req.body;
+
   const modifiedBy = req.user.id;
   const modifiedDate = new Date();
 
-  // Fetch current GRN
-  db.query("SELECT * FROM GRN WHERE grnId = ?", [grnId], async (err, result) => {
-    if (err || result.length === 0) return res.status(404).json({ message: "GRN not found" });
+  // Step 1: Check if GRN exists
+  db.query("SELECT * FROM GRN WHERE grnId = ?", [grnId], (err, result) => {
+    if (err) return res.status(500).json({ message: "DB error", err });
+    if (result.length === 0)
+      return res.status(404).json({ message: "GRN not found" });
 
-    if (result[0].statusNo !== 1)
-      return res.status(400).json({ message: "Only GRNs with status 'Initialised' can be edited" });
+    const currentGRN = result[0];
 
-    // Update GRN
-    const updateSql = `
-      UPDATE GRN
-      SET grnNo = ?, grnDate = ?, statusNo = ?, supplierLocationNo = ?, poNo = ?, challanNo = ?, challanDate = ?, modifiedBy = ?, modifiedDate = ?
-      WHERE grnId = ?
-    `;
-    db.query(updateSql, [grnNo, grnDate, statusNo, supplierLocationNo, poNo, challanNo, challanDate, modifiedBy, modifiedDate, grnId], (err) => {
-      if (err) return res.status(500).json({ message: "Update failed", err });
+    if (currentGRN.statusNo !== 1) {
+      return res
+        .status(400)
+        .json({ message: "Only GRNs with status 'Initialised' can be edited" });
+    }
 
-      // Delete existing item details
-      db.query("DELETE FROM GRNItemDetail WHERE grnId = ?", [grnId], async (err) => {
-        if (err) return res.status(500).json({ message: "Failed to clear old items", err });
+    // Step 2: Check for duplicate GRN No
+    db.query(
+      "SELECT grnId FROM GRN WHERE grnNo = ? AND grnId != ?",
+      [grnNo, grnId],
+      (err, grnRows) => {
+        if (err)
+          return res.status(500).json({ message: "DB error (GRN No)", err });
+        if (grnRows.length > 0)
+          return res
+            .status(400)
+            .json({ errors: { grnNo: "GRN Number must be unique" } });
 
-        // Insert updated items
-        for (const item of itemDetails) {
-          const { poitemDetailId, recievedQty } = item;
-          db.query("INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty) VALUES (?, ?, ?)",
-            [grnId, poitemDetailId, recievedQty]);
-        }
+        // Step 3: Check for duplicate Challan No
+        db.query(
+          "SELECT grnId FROM GRN WHERE challanNo = ? AND grnId != ?",
+          [challanNo, grnId],
+          (err, challanRows) => {
+            if (err)
+              return res
+                .status(500)
+                .json({ message: "DB error (Challan No)", err });
+            if (challanRows.length > 0)
+              return res
+                .status(400)
+                .json({ errors: { challanNo: "Challan Number must be unique" } });
 
-        res.json({ message: "GRN updated" });
-      });
-    });
+            // Step 4: Proceed with Update
+            const updateSql = `
+              UPDATE GRN
+              SET grnNo = ?, grnDate = ?, statusNo = ?, supplierLocationNo = ?, poNo = ?, challanNo = ?, challanDate = ?, modifiedBy = ?, modifiedDate = ?
+              WHERE grnId = ?
+            `;
+            db.query(
+              updateSql,
+              [
+                grnNo,
+                grnDate,
+                statusNo,
+                supplierLocationNo,
+                poNo,
+                challanNo,
+                challanDate,
+                modifiedBy,
+                modifiedDate,
+                grnId,
+              ],
+              (err) => {
+                if (err)
+                  return res
+                    .status(500)
+                    .json({ message: "Update failed", err });
+
+                // Delete existing item details
+                db.query(
+                  "DELETE FROM GRNItemDetail WHERE grnId = ?",
+                  [grnId],
+                  (err) => {
+                    if (err)
+                      return res.status(500).json({
+                        message: "Failed to clear old items",
+                        err,
+                      });
+
+                    // Insert updated items
+                    let pending = itemDetails.length;
+                    if (pending === 0) return res.json({ message: "GRN updated" });
+
+                    for (const item of itemDetails) {
+                      const { poitemDetailId, recievedQty } = item;
+                      db.query(
+                        "INSERT INTO GRNItemDetail (grnId, poitemDetailId, recievedQty) VALUES (?, ?, ?)",
+                        [grnId, poitemDetailId, recievedQty],
+                        (err) => {
+                          if (err) {
+                            console.error("DB Error (Insert Item):", err);
+                            return res
+                              .status(500)
+                              .json({ message: "Item insert failed", err });
+                          }
+
+                          pending--;
+                          if (pending === 0) {
+                            res.json({ message: "GRN updated" });
+                          }
+                        }
+                      );
+                    }
+                  }
+                );
+              }
+            );
+          }
+        );
+      }
+    );
   });
 };
+
 
 // PO item fetch for GRN creation
 exports.getPOItemsForGRN = async (req, res) => {

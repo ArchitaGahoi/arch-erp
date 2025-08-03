@@ -27,10 +27,10 @@ export default function UserMasterTable({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 text-sm">
+      <table className="w-full border border-gray-150 rounded shadow-sm">
         <thead>
           <tr className="bg-gray-100 text-left">
-            <th className="p-2 border">SNo.</th>
+            <th className="p-2 border">Sr No.</th>
             <th className="p-2 border">Code</th>
             <th className="p-2 border">Email ID</th>
             <th className="p-2 border">User Type</th>

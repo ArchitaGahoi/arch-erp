@@ -27,10 +27,10 @@ export default function BusinessPartnerTable({
 }: BusinessPartnerTableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 text-sm">
+      <table className="w-full border border-gray-150 rounded shadow-sm">
         <thead>
           <tr className="bg-gray-100 text-left">
-            <th className="p-2 border">BP ID</th>
+            <th className="p-2 border">Sr No.</th>
             <th className="p-2 border">BP Code</th>
             <th className="p-2 border">BP Name</th>
             <th className="p-2 border">BP Type</th>
@@ -43,13 +43,13 @@ export default function BusinessPartnerTable({
           </tr>
         </thead>
         <tbody>
-          {businessPartners.map((businessPartner) => (
+          {businessPartners.map((businessPartner, index) => (
             <tr
               key={businessPartner.bpId}
               className="hover:bg-gray-50 cursor-pointer"
               onClick={() => onRowClick?.(businessPartner)}
             >
-              <td className="p-2 border">{businessPartner.bpId}</td>
+              <td className="p-2 border">{index + 1}</td>
               <td className="p-2 border">{businessPartner.bpCode}</td>
               <td className="p-2 border">{businessPartner.bpName}</td>
               <td className="p-2 border">{businessPartner.bpType}</td>

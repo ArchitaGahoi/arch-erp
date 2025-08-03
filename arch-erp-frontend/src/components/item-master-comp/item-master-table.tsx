@@ -21,11 +21,10 @@ export default function ItemMasterTable({
   onEdit,
 }: ItemMasterTableProps) {
   return (
-    <div className="">
-      <table className="min-w-full bg-white border border-gray-200 text-sm">
-        <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-2 border">SNo.</th>
+      <table className="w-full border border-gray-150 rounded shadow-sm">
+        <thead className="bg-gray-100 text-left">
+          <tr>
+            <th className="p-2 border">Sr No.</th>
             <th className="p-2 border">Item Code</th>
             <th className="p-2 border">Item Name</th>
             <th className="p-2 border">Unit</th>
@@ -54,6 +53,5 @@ export default function ItemMasterTable({
           ))}
         </tbody>
       </table>
-    </div>
   );
 }

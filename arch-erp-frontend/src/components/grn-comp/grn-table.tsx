@@ -14,8 +14,8 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
   
   
   return (
-    <table className="w-full border border-gray-200 rounded shadow-sm">
-      <thead className="bg-gray-100">
+    <table className="w-full border border-gray-150 rounded shadow-sm">
+      <thead className="bg-gray-100 text-left">
         <tr>
           <th className="p-2 border">Sr No.</th>
           <th className="p-2 border">GRN No.</th>
