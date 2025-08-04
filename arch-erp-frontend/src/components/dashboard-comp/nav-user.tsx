@@ -108,7 +108,16 @@ export function NavUser({
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setShowChange(true)}>
+              <DropdownMenuItem
+                  onClick={() => {
+                    // Clear message before opening the dialog
+                    setChangeMsg("");
+                    setOldPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setShowChange(true);
+                  }}
+                >
                 <IconUserCircle />
                 Change Password
               </DropdownMenuItem>
@@ -132,7 +141,21 @@ export function NavUser({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        <Dialog open={showChange} onOpenChange={setShowChange}>
+          <Dialog
+            open={showChange}
+            onOpenChange={(open) => {
+              setShowChange(open);
+              
+              // 👇 Reset fields whenever dialog is closed
+              if (!open) {
+                setOldPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+                setChangeMsg("");
+              }
+              
+            }}
+          >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Change Password</DialogTitle>
@@ -155,6 +178,13 @@ export function NavUser({
                 try {
                   await api.post("/user-master/change-password", { oldPassword, newPassword });
                   setChangeMsg("Password changed successfully.");
+
+                  // Reset fields immediately
+                  setOldPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+
+                  // Close the dialog after a short delay
                   setTimeout(() => setShowChange(false), 1200);
                 } catch (err: any) {
                   setChangeMsg(err.response?.data?.message || "Error");
