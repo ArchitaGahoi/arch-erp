@@ -4,6 +4,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const globalData = require('../config/global-data.json');
 const userTypes = globalData.userTypes;
+const nodemailer = require("nodemailer");
+const otpStore = {}; // In-memory store for OTP
+const redisClient = require("../config/redis-client");
 
 const secretKey = process.env.JWT_SECRET;
 
@@ -16,35 +19,128 @@ exports.forgetPassword = (req, res) => {
   if (!emailId) return res.status(400).json({ message: "Email is required" });
 
   const sql = 'SELECT userId FROM UserMaster WHERE emailId = ?';
-  db.query(sql, [emailId], (err, rows) => {
+  db.query(sql, [emailId], async (err, rows) => {
     if (err) return res.status(500).json({ message: "DB error", err });
     if (!rows.length) return res.status(404).json({ message: "User not found" });
 
-    const token = crypto.randomBytes(32).toString('hex');
-    resetTokens[token] = { userId: rows[0].userId, expires: Date.now() + 15 * 60 * 1000 }; // 15 min
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
 
-    // In production, send token via email. Here, return it for demo.
-    res.json({ message: "Reset token generated", token });
+    // Store OTP in Redis with 10 min expiry
+    await redisClient.setEx(`otp:${emailId}`, 600, otp); // 600 sec = 10 min
+
+    // Send OTP via email
+    try {
+      const transporter = nodemailer.createTransport({
+        //service: "gmail",
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Arch-erp" <${process.env.EMAIL_USER}>`,
+        to: emailId,
+        subject: "Your OTP for Password Reset",
+        html: `<p>Your OTP is <b>${otp}</b>. It will expire in 10 minutes.</p>`,
+      });
+
+      res.json({ message: "OTP sent to email" });
+    } catch (mailErr) {
+      console.error("Mail error", mailErr);
+      res.status(500).json({ message: "Failed to send OTP" });
+    }
   });
 };
 
+
+
+// exports.forgetPassword = (req, res) => {
+//   const { emailId } = req.body;
+//   if (!emailId) return res.status(400).json({ message: "Email is required" });
+
+//   const sql = 'SELECT userId FROM UserMaster WHERE emailId = ?';
+//   db.query(sql, [emailId], (err, rows) => {
+//     if (err) return res.status(500).json({ message: "DB error", err });
+//     if (!rows.length) return res.status(404).json({ message: "User not found" });
+
+//     const token = crypto.randomBytes(32).toString('hex');
+//     resetTokens[token] = { userId: rows[0].userId, expires: Date.now() + 15 * 60 * 1000 }; // 15 min
+
+//     // In production, send token via email. Here, return it for demo.
+//     res.json({ message: "Reset token generated", token });
+//   });
+// };
+
 // RESET PASSWORD: Use token to set new password
-exports.resetPassword = (req, res) => {
+exports.resetPassword = async (req, res) => {
   const { token, password } = req.body;
-  if (!token || !password) return res.status(400).json({ message: "Token and password required" });
+  if (!token || !password) {
+    return res.status(400).json({ message: "Token and password required" });
+  }
 
-  const data = resetTokens[token];
-  if (!data || data.expires < Date.now()) return res.status(400).json({ message: "Invalid or expired token" });
+  const emailId = await redisClient.get(`resetToken:${token}`);
+  if (!emailId) {
+    return res.status(400).json({ message: "Invalid or expired token" });
+  }
 
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) return res.status(500).json({ message: "Hash error", err });
-    const sql = 'UPDATE UserMaster SET password = ? WHERE userId = ?';
-    db.query(sql, [hash, data.userId], (err) => {
-      if (err) return res.status(500).json({ message: "DB error", err });
-      delete resetTokens[token];
-      res.json({ message: "Password reset successful" });
-    });
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const sql = 'UPDATE UserMaster SET password = ? WHERE emailId = ?';
+  db.query(sql, [hashedPassword, emailId], (err) => {
+    if (err) return res.status(500).json({ message: "DB error", err });
+
+    redisClient.del(`resetToken:${token}`);
+    res.json({ message: "Password reset successful" });
   });
+};
+
+
+
+// exports.resetPassword = (req, res) => {
+//   const { token, password } = req.body;
+//   if (!token || !password) return res.status(400).json({ message: "Token and password required" });
+
+//   const data = resetTokens[token];
+//   if (!data || data.expires < Date.now()) return res.status(400).json({ message: "Invalid or expired token" });
+
+//   bcrypt.hash(password, 10, (err, hash) => {
+//     if (err) return res.status(500).json({ message: "Hash error", err });
+//     const sql = 'UPDATE UserMaster SET password = ? WHERE userId = ?';
+//     db.query(sql, [hash, data.userId], (err) => {
+//       if (err) return res.status(500).json({ message: "DB error", err });
+//       delete resetTokens[token];
+//       res.json({ message: "Password reset successful" });
+//     });
+//   });
+// };
+
+
+// VERIFY OTP: Check OTP and allow password reset
+exports.verifyOtp = async (req, res) => {
+  const { emailId, otp } = req.body;
+  if (!emailId || !otp) {
+    return res.status(400).json({ message: "Email and OTP are required" });
+  }
+
+  const storedOtp = await redisClient.get(`otp:${emailId}`);
+  if (!storedOtp) {
+    return res.status(400).json({ message: "OTP expired or invalid" });
+  }
+
+  if (storedOtp !== otp) {
+    return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  await redisClient.setEx(`resetToken:${token}`, 900, emailId); // 15 mins valid
+
+  // Clear OTP after use
+  await redisClient.del(`otp:${emailId}`);
+
+  res.json({ message: "OTP verified", token });
 };
 
 // CHANGE PASSWORD: Authenticated user changes password

@@ -28,6 +28,6 @@ router.delete('/:id', authMiddleware, isAdmin, userMasterController.deleteUser);
 router.post('/forget-password', userMasterController.forgetPassword);
 router.post('/reset-password', userMasterController.resetPassword);
 router.post('/change-password', authMiddleware, userMasterController.changePassword);
-
+router.post('/verify-otp', userMasterController.verifyOtp);
 
 module.exports = router;
