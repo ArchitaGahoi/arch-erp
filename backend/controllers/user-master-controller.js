@@ -25,8 +25,8 @@ exports.forgetPassword = (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
 
-    // Store OTP in Redis with 10 min expiry
-    await redisClient.setEx(`otp:${emailId}`, 600, otp); // 600 sec = 10 min
+    // Store OTP in Redis with 5 min expiry
+    await redisClient.setEx(`otp:${emailId}`, 300, otp); // 300 sec = 5 min
 
     // Send OTP via email
     try {
@@ -45,7 +45,7 @@ exports.forgetPassword = (req, res) => {
         from: `"Arch-erp" <${process.env.EMAIL_USER}>`,
         to: emailId,
         subject: "Your OTP for Password Reset",
-        html: `<p>Your OTP is <b>${otp}</b>. It will expire in 10 minutes.</p>`,
+        html: `<p>Your OTP is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
       });
 
       res.json({ message: "OTP sent to email" });
