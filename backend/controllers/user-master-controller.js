@@ -190,7 +190,11 @@ exports.getUserById = (req, res) => {
 exports.addUser = async (req, res) => {
   const { code, emailId, password, userType } = req.body;
   //console.log("rebody---->",req.body);
-  const createdBy = req.user.id;
+  const createdBy = req.user?.userId || req.user?.id;
+  if (!createdBy) {
+    return res.status(400).json({ message: "Creator (logged-in user) not identified" });
+  }
+
   const createdDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
   if (!code || !emailId || !password || !userType) {
     return res.status(400).json({ message: "Missing required fields" });
