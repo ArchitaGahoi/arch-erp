@@ -348,7 +348,8 @@ const GRNForm = forwardRef(function grnForm(
                     aria-invalid={errData?.poNo ? "true" : "false"}
                     value={field.value} 
                     onChange={async(val) => {
-                    field.onChange(val);
+                      if (!disableAll) {
+                         field.onChange(val);
                       // if (isEdit) return;
                      const selectedPO = poOptions.find(po => po.poNo === val);
                      
@@ -378,7 +379,11 @@ const GRNForm = forwardRef(function grnForm(
                       setItemDetails([]);
                     }
                     // onPOChange?.(val);
-                  }}>
+                        if (errData?.poNo) errData.poNo = "";
+                      }
+                  }}
+                    disabled={disableAll}
+                  >
                     <div className="relative">
                       <Combobox.Input
                         className={`w-full border rounded-md p-2 ${
@@ -393,8 +398,9 @@ const GRNForm = forwardRef(function grnForm(
                         }} 
                         displayValue={(val: string) => val}
                         placeholder="Select PO No"
+                        disabled={disableAll}
                       />
-                      {poOptions.length > 0 && (
+                      {!disableAll && poOptions.length > 0 && (
                         <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {poOptions.map((po) => (
                             <Combobox.Option key={po.poId} value={po.poNo}>

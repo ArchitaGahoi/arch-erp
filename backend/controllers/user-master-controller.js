@@ -11,7 +11,7 @@ const redisClient = require("../config/redis-client");
 const secretKey = process.env.JWT_SECRET;
 
 // In-memory store for reset tokens (for demo; use DB/Redis in production)
-const resetTokens = {};
+// const resetTokens = {};
 
 // FORGET PASSWORD: Generate and "send" reset token
 exports.forgetPassword = (req, res) => {
@@ -283,12 +283,37 @@ exports.updateUser = (req, res) => {
 // Delete User
 exports.deleteUser = (req, res) => {
   const { id } = req.params;
-  const sql = 'DELETE FROM UserMaster WHERE userId = ?';
-  db.query(sql, [id], (err) => {
-    if (err) return res.status(500).json({ message: 'Delete failed', err });
-    res.json({ message: 'User deleted' });
+
+  // Check if this user is referenced in businesspartner
+  const checkSql = 'SELECT COUNT(*) AS count FROM businesspartner WHERE createdBy = ?';
+  db.query(checkSql, [id], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Check failed', err });
+
+    const count = results[0].count;
+    if (count > 0) {
+      return res.status(400).json({
+        message: 'Cannot delete user. It is referenced in other records.',
+      });
+    }
+
+    // Safe to delete
+    const deleteSql = 'DELETE FROM UserMaster WHERE userId = ?';
+    db.query(deleteSql, [id], (err) => {
+      if (err) return res.status(500).json({ message: 'Delete failed', err });
+      res.json({ message: 'User deleted successfully' });
+    });
   });
 };
+
+
+// exports.deleteUser = (req, res) => {
+//   const { id } = req.params;
+//   const sql = 'DELETE FROM UserMaster WHERE userId = ?';
+//   db.query(sql, [id], (err) => {
+//     if (err) return res.status(500).json({ message: 'Delete failed', err });
+//     res.json({ message: 'User deleted' });
+//   });
+// };
 
 exports.loginUser = async (req, res) => {
   const { emailId, password } = req.body;
