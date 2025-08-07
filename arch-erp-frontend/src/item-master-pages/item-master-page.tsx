@@ -54,12 +54,11 @@ export default function ItemMasterPage() {
         // modifiedDate: today,
       });
       }
-      catch(err : Error | any){
-          console.log(err);
-          setErrData(()=>{
-            return {itemCode : err.response.data.message};
-          })
-          return;
+      catch (err: Error | any) {
+        console.error(err);
+        const backendErrors = err?.response?.data?.errors || {};
+        setErrData(backendErrors); 
+        return;
       }
       
     } else {
@@ -74,12 +73,11 @@ export default function ItemMasterPage() {
         // createdDate: today,
       });
       }
-      catch(err: Error | any){
-          console.log(err);
-          setErrData(()=>{
-            return {itemCode : err.response.data.message};
-          })
-          return;
+      catch (err: Error | any) {
+        console.error(err);
+        const backendErrors = err?.response?.data?.errors || {};
+        setErrData(backendErrors); 
+        return;
       }
       
     }

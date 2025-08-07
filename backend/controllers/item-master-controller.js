@@ -39,10 +39,10 @@ exports.addItem = (req, res) => {
     const nameExists = rows.some(row => row.itemName === itemName);
 
     if (codeExists) {
-      return res.status(400).json({ message: 'Item code must be unique' });
+      return res.status(400).json({ errors:{ itemCode: 'Item code must be unique' } });
     }
     if (nameExists) {
-      return res.status(400).json({ message: 'Item name must be unique' });
+      return res.status(400).json({ errors:{ itemName: 'Item name must be unique' } });
     }
     const sql = `
       INSERT INTO ItemMaster (itemCode, itemName, unit, createdBy, createdDate)
@@ -82,8 +82,8 @@ exports.updateItem = (req, res) => {
         const codeExists = rows.some(row => row.itemCode === itemCode);
         const nameExists = rows.some(row => row.itemName === itemName);
 
-        if (codeExists) return res.status(400).json({ message: 'Item code must be unique' });
-        if (nameExists) return res.status(400).json({ message: 'Item name must be unique' });
+        if (codeExists) return res.status(400).json({ errors:{ itemCode: 'Item code must be unique' } });
+        if (nameExists) return res.status(400).json({ errors:{ itemName: 'Item name must be unique' } });
 
         doUpdate();
       });
