@@ -169,6 +169,7 @@ export default function UserMasterPage() {
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setIsDelete(false);
   };
 
   const handleDialogOpen = () => {
@@ -212,6 +213,7 @@ export default function UserMasterPage() {
         }
         onSubmit={
           (data) =>{
+            setIsDelete(false);
             handleDialogOpen();
             setDialogAction(()=>()=>handleFormSubmit(data));
           }

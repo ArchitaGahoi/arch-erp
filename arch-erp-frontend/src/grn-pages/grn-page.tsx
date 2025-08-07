@@ -48,7 +48,8 @@ export default function GRNPage() {
 
   const isReadOnly = editItem?.statusNo === 2;
 
-   const deleteEnabled = !!editItem;
+  const deleteEnabled = !!editItem && editItem.statusNo === 1;
+
   
 useEffect(() => {
   if (location.state?.editItem) {
@@ -272,6 +273,7 @@ useEffect(() => {
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setIsDelete(false);
   };
 
   const handleDialogOpen = () => {
@@ -323,6 +325,7 @@ useEffect(() => {
         deleteEnabled={deleteEnabled}
         isEdit={!!editItem}
         onSave={() =>{
+          setIsDelete(false);
           handleDialogOpen();
           setDialogAction(()=>()=>handleSave());
         }}

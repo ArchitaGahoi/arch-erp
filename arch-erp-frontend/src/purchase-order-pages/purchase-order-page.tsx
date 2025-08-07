@@ -52,7 +52,7 @@ export default function PurchaseOrderPage() {
   const [isDelete, setIsDelete] = useState(false);
   const initializedRef = useRef(false);
 
-  const deleteEnabled = !!editItem;
+  const deleteEnabled = !!editItem && editItem.statusNo === 1;
   const isAuthorised = editItem?.statusNo === 2;
   
 useEffect(() => {
@@ -239,6 +239,7 @@ useEffect(() => {
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setIsDelete(false);
   };
 
   const handleDialogOpen = () => {
@@ -291,6 +292,7 @@ useEffect(() => {
         deleteEnabled={deleteEnabled}
         isEdit={!!editItem}
         onSave={() =>{
+          setIsDelete(false);
           handleDialogOpen();
           setDialogAction(()=>()=>handleSave());
         }}

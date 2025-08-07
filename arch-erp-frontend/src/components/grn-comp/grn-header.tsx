@@ -15,7 +15,13 @@ export default function GRNHeader({ onAdd, onSearch, onDelete, deleteEnabled, is
       <h2 className="text-2xl font-semibold mb-2">GOODS RECEIPT NOTE</h2>
       {/* <div className="flex items-center gap-4"></div> */}
       <div className="flex gap-2">
-        <Button onClick={onSave}>{isEdit ? "Update" : "Save"}</Button>
+        <Button
+          onClick={onSave}
+          disabled={isEdit && !deleteEnabled}
+          title={isEdit && !deleteEnabled ? "Cannot update authorised GRN" : ""}
+        >
+          {isEdit ? "Update" : "Save"}
+        </Button>
         <Button onClick={onAdd}>+</Button>
         <Button onClick={onSearch}>Search</Button>
         <Button onClick={onDelete} disabled={!deleteEnabled} variant="destructive">

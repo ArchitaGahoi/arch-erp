@@ -97,6 +97,7 @@ export default function BusinessPartnerPage() {
 
   const handleDialogClose = () => {
     setOpenDialog(false);
+    setIsDelete(false);
   };
 
   const handleDialogOpen = () => {
@@ -145,6 +146,7 @@ export default function BusinessPartnerPage() {
         }
         onSubmit={(data) =>{
             console.log("dialog-->")
+            setIsDelete(false);
             handleDialogOpen();
             setDialogAction(()=>()=>handleFormSubmit(data));
           }}
