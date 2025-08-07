@@ -28,11 +28,21 @@ exports.addItem = (req, res) => {
   if (!itemCode || !itemName || !unit) {
     return res.status(400).json({ message: "Missing required fields" });
   }
-  const checkSql = 'SELECT itemId FROM ItemMaster WHERE itemCode = ?';
-  db.query(checkSql, [itemCode], (err, rows) => {
+  const checkSql = `
+    SELECT itemId FROM ItemMaster 
+    WHERE itemCode = ? OR itemName = ?
+  `;
+  db.query(checkSql, [itemCode, itemName], (err, rows) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
-    if (rows.length > 0) {
+
+    const codeExists = rows.some(row => row.itemCode === itemCode);
+    const nameExists = rows.some(row => row.itemName === itemName);
+
+    if (codeExists) {
       return res.status(400).json({ message: 'Item code must be unique' });
+    }
+    if (nameExists) {
+      return res.status(400).json({ message: 'Item name must be unique' });
     }
     const sql = `
       INSERT INTO ItemMaster (itemCode, itemName, unit, createdBy, createdDate)
@@ -53,24 +63,35 @@ exports.updateItem = (req, res) => {
   const { id } = req.params;
 
   // Get current itemCode for this id
-  const getCurrentSql = 'SELECT itemCode FROM ItemMaster WHERE itemId = ?';
+  const getCurrentSql = 'SELECT itemCode, itemName FROM ItemMaster WHERE itemId = ?';
   db.query(getCurrentSql, [id], (err, result) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
     if (result.length === 0) return res.status(404).json({ message: 'Item not found' });
 
     const currentCode = result[0].itemCode;
+    const currentName = result[0].itemName;
 
-    // If code is changing, check uniqueness
-    if (itemCode !== currentCode) {
-      const checkSql = 'SELECT itemId FROM ItemMaster WHERE itemCode = ? AND itemId != ?';
-      db.query(checkSql, [itemCode, id], (err, rows) => {
+    const checkUniqueness = () => {
+      const checkSql = `
+        SELECT itemId, itemCode, itemName FROM ItemMaster
+        WHERE (itemCode = ? OR itemName = ?) AND itemId != ?
+      `;
+      db.query(checkSql, [itemCode, itemName, id], (err, rows) => {
         if (err) return res.status(500).json({ message: 'DB error', err });
-        if (rows.length > 0) {
-          return res.status(400).json({ message: 'Item code must be unique' });
-        }
+
+        const codeExists = rows.some(row => row.itemCode === itemCode);
+        const nameExists = rows.some(row => row.itemName === itemName);
+
+        if (codeExists) return res.status(400).json({ message: 'Item code must be unique' });
+        if (nameExists) return res.status(400).json({ message: 'Item name must be unique' });
+
         doUpdate();
       });
-    }else {
+    };
+
+    if (itemCode !== currentCode || itemName !== currentName) {
+      checkUniqueness();
+    } else {
       doUpdate();
     }
 
@@ -85,7 +106,7 @@ exports.updateItem = (req, res) => {
       });
     }
   });
-};
+}
 
 // Delete item
 exports.deleteItem = (req, res) => {
