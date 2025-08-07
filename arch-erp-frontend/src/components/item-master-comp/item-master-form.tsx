@@ -29,7 +29,7 @@ interface ErrorData {
 }
 
 const ItemMasterForm = forwardRef(function ItemMasterForm(
-  { defaultValues = { itemCode: "", itemName: "", unit: "" }, onSubmit, errData }: ItemMasterFormProps,
+  { defaultValues = { itemCode: "", itemName: "", unit: "" }, onSubmit, errData, isEdit }: ItemMasterFormProps,
   ref
 ) {
   const form = useForm<ItemFormData>({
@@ -68,7 +68,7 @@ const ItemMasterForm = forwardRef(function ItemMasterForm(
               <FormItem className={`flex-1 ${getErrorClass("itemCode")}`}>
                 <FormControl>
                   <Input className="w-full border bg-white rounded-md p-2"
-                  {...form.register ("itemCode", { required: true })}
+                  {...form.register ("itemCode", { required: isEdit ? false : "email is required"  })}
                   aria-invalid={errData?.itemCode ? "true" : "false"}
                     placeholder="Item Code"
                     {...field}
@@ -98,7 +98,15 @@ const ItemMasterForm = forwardRef(function ItemMasterForm(
               <FormItem className={`flex-1 ${getErrorClass("itemName")}`}>
                 <FormControl>
                   <Input className="w-full border bg-white rounded-md p-2"
-                  placeholder="Item Name" {...field} maxLength={50} />
+                  {...form.register ("itemName", { required: isEdit ? false : "Item name is required"}) }
+                  aria-invalid={errData?.itemName ? "true" : "false"}
+                  placeholder="Item Name" {...field} 
+                  onChange={(e) => {
+                    field.onChange(e);
+                    if (errData?.itemName) errData.itemName = "";
+                  }}
+                  maxLength={50}
+                   />
                 </FormControl>
                 <FormMessage />
                 <div className="text-red-500 text-sm">{errData?.itemName}</div>

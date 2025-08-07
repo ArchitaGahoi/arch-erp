@@ -25,13 +25,16 @@ exports.addItem = (req, res) => {
   const { itemCode, itemName, unit } = req.body;
   const createdBy = req.user.id;
   const createdDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
   if (!itemCode || !itemName || !unit) {
     return res.status(400).json({ message: "Missing required fields" });
   }
+
   const checkSql = `
-    SELECT itemId FROM ItemMaster 
+    SELECT itemId, itemCode, itemName FROM ItemMaster 
     WHERE itemCode = ? OR itemName = ?
   `;
+
   db.query(checkSql, [itemCode, itemName], (err, rows) => {
     if (err) return res.status(500).json({ message: 'DB error', err });
 
@@ -39,21 +42,23 @@ exports.addItem = (req, res) => {
     const nameExists = rows.some(row => row.itemName === itemName);
 
     if (codeExists) {
-      return res.status(400).json({ errors:{ itemCode: 'Item code must be unique' } });
+      return res.status(400).json({ errors: { itemCode: 'Item code must be unique' } });
     }
     if (nameExists) {
-      return res.status(400).json({ errors:{ itemName: 'Item name must be unique' } });
+      return res.status(400).json({ errors: { itemName: 'Item name must be unique' } });
     }
+
     const sql = `
       INSERT INTO ItemMaster (itemCode, itemName, unit, createdBy, createdDate)
       VALUES (?, ?, ?, ?, ?)
     `;
-  db.query(sql, [itemCode, itemName, unit, createdBy, createdDate], (err, result) => {
-    if (err) return res.status(500).json({ message: 'Insert failed', err });
-    res.json({ message: 'Item added', itemId: result.insertId });
-  });
+    db.query(sql, [itemCode, itemName, unit, createdBy, createdDate], (err, result) => {
+      if (err) return res.status(500).json({ message: 'Insert failed', err });
+      res.json({ message: 'Item added', itemId: result.insertId });
+    });
   });
 };
+
 
 /// Update item
 exports.updateItem = (req, res) => {
