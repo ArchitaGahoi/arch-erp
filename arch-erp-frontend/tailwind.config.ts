@@ -7,10 +7,18 @@ const config: Config = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'login-bg': '#f0f4f8', 
+      },
+      backgroundImage: {
+        'login-gradient': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      },
+    },
   },
   plugins: [],
-  darkMode: 'class'
+  darkMode: 'class',
 };
 
 export default config;
+
