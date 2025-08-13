@@ -13,6 +13,7 @@ import { useAuth } from "@/components/login-comp/auth-context";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Link } from "react-router-dom";  
+import { ThemeToggle } from "../layout-comp/theme-toggle";
 
 export function LoginForm({
   className,
@@ -39,49 +40,54 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your EmailId and Password to login
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-3">
-                <Label htmlFor="email">EmailId</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="text"
-                  placeholder="Enter your EmailId"
-                  required
-                />
-              </div>
-              <div className="grid gap-3">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+        <Card  className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>Login to your account</CardTitle>
+            <CardDescription>
+              Enter your EmailId and Password to login
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col gap-6">
+                <div className="grid gap-3">
+                  <Label htmlFor="email">EmailId</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="text"
+                    placeholder="Enter your EmailId"
+                    required
+                  />
                 </div>
-                <Input id="password" name="Password" type="Password" required />
+                <div className="grid gap-3">
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Password</Label>
+                  </div>
+                  <Input id="password" name="Password" type="Password" required />
+                </div>
+                {error && (
+                  <div className="text-red-500 text-sm">{error}</div>
+                )}
+                <p className="text-sm text-right mt-2">
+                  <Link to="/forgot-password" className="text-blue-600 hover:underline">
+                    Forgot Password?
+                  </Link>
+                </p>
+                <div className="flex flex-col gap-3">
+                  <Button type="submit" className="w-full">
+                    Login
+                  </Button>
+                </div>
               </div>
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
-              )}
-              <p className="text-sm text-right mt-2">
-                <Link to="/forgot-password" className="text-blue-600 hover:underline">
-                  Forgot Password?
-                </Link>
-              </p>
-              <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
