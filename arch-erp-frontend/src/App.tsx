@@ -15,7 +15,6 @@ import GRNSearchPage from "./grn-pages/grn-search-page";
 import Layout from "@/components/layout-comp/layout";
 import { ForgetPasswordForm } from "@/components/login-comp/forget-password-form";
 
-
 import React from "react";
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
