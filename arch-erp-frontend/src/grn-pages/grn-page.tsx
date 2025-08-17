@@ -114,6 +114,21 @@ useEffect(() => {
     if (!grnFormData) return;
     const selectedItems = itemDetails.filter(item => item.selected);
 
+    const invalidItems = selectedItems.filter((item: any) => {
+    const maxQty = item.poQuantity - item.preRecivedQuantity;
+    const balance = item.poQuantity - (item.preRecivedQuantity + (item.recivedQuantity || 0));
+
+    return (
+      item.recivedQuantity < 0 ||       
+      item.recivedQuantity > maxQty ||  
+      balance < 0                       
+    );
+  });
+
+  if (invalidItems.length > 0) {
+    alert("Received quantity cannot exceed available balance or be negative.");
+    return; 
+  }
   //   const hasInvalidItems = selectedItems.some(
   //   item => !item.poitemDetailId || item.recivedQuantity == null
   // );
@@ -168,7 +183,16 @@ useEffect(() => {
     } catch (err: Error | any) {
       console.error(err);
       const backendErrors = err?.response?.data?.errors || {};
-      setErrData(backendErrors); 
+      const backendMessage = err?.response?.data?.message;
+      if (Object.keys(backendErrors).length > 0) {
+        // Duplicate GRN/Challan handled here
+        setErrData(backendErrors);
+      } else if (backendMessage) {
+        // Balance exceed or invalid qty handled here
+        toast.error(backendMessage);
+      } else {
+        toast.error("Unexpected error occurred while saving GRN");
+      }
       // setErrData(()=>{
       //   return {grnNo : err.response.data.message,
       //       supplierLocationNo : err.response.data.message,

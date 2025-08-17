@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Link } from "react-router-dom";  
 import { ThemeToggle } from "../layout-comp/theme-toggle";
+import { useTheme } from "../layout-comp/theme-context";
 
 export function LoginForm({
   className,
@@ -22,6 +23,7 @@ export function LoginForm({
   const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const { theme } = useTheme();
   
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,17 +42,27 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors">
+      <div className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors">
         <div className="absolute top-4 right-4">
           <ThemeToggle />
         </div>
-        <Card  className="w-full max-w-2xl">
-          <CardHeader>
+        <div className="flex flex-col items-center mt-[-2rem] mb-4">
+          <img
+            src={theme === "dark" ? "/logo arch-erp dt.png" : "/Logo arch-erp.png"}
+            alt="Arch-ERP Logo"
+            className="h-16 w-16 object-contain mb-2"
+          />
+          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-1">
+            Login in Arch-ERP
+          </h2>
+        </div>
+        <Card  className="w-full max-w-sm ">
+          {/* <CardHeader>
             <CardTitle>Login to your account</CardTitle>
             <CardDescription>
               Enter your EmailId and Password to login
             </CardDescription>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent>
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
@@ -73,12 +85,12 @@ export function LoginForm({
                 {error && (
                   <div className="text-red-500 text-sm">{error}</div>
                 )}
-                <p className="text-sm text-right mt-2">
+                <p className="text-sm text-right mt-1">
                   <Link to="/forgot-password" className="text-blue-600 hover:underline">
                     Forgot Password?
                   </Link>
                 </p>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-0">
                   <Button type="submit" className="w-full">
                     Login
                   </Button>

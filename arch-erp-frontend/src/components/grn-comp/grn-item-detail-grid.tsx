@@ -75,10 +75,15 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
                   disabled={isReadOnly}
                   className={`border rounded p-1 w-full ${isReadOnly ? "bg-gray-200 text-gray-500" : ""}`}
                   onChange={(e) => {
-                    const inputQty = Number(e.target.value);
+                    let inputQty = Number(e.target.value);
                     const maxQty = item.poQuantity - item.preRecivedQuantity;
 
-                    if (inputQty > maxQty) return alert("Received quantity exceeds PO balance");
+                    if (inputQty < 0) inputQty = 0;
+
+                    if (inputQty > maxQty) {
+                      alert("Received quantity exceeds PO balance");
+                      return;
+                    }
 
                     const updated = [...itemDetails];
                     updated[index].recivedQuantity = inputQty;

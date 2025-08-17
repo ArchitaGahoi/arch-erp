@@ -34,6 +34,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/components/login-comp/auth-context";
+import { useTheme } from "../layout-comp/theme-context";
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -76,6 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: IconFolder,
     },
   ];
+    const { theme } = useTheme();
     // navClouds: [
     //   {
     //     title: "Capture",
@@ -166,10 +168,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:!p-1.5 flex items-center justify-start gap-2"
             >
               <NavLink to="/dashboard">
-                <IconInnerShadowTop className="!size-5" />
+                <img
+                  src={theme === "dark" ? "/logo arch-erp dt.png" : "/Logo arch-erp.png"}
+                  alt="Arch-ERP Logo"
+                  className="h-8 w-8 object-contain mr-0"
+                />
+                {/* <IconInnerShadowTop className="!size-5" /> */}
                 <span className="text-base font-bold ">Arch-ERP</span>
               </NavLink>
             </SidebarMenuButton>
