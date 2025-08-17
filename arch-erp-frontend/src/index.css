@@ -123,8 +123,5 @@
 }
 
 body {
-  @apply bg-gray-100 text-gray-900 transition-colors;
-}
-.dark body {
-  @apply bg-[#18181b] text-gray-100 transition-colors;
+  @apply bg-gray-100 dark:bg-gray-900 transition-colors;
 }

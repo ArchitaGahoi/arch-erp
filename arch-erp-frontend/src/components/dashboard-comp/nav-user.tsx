@@ -31,17 +31,20 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { ThemeToggle } from "@/components/layout-comp/theme-toggle";
+import { useTheme } from "@/components/layout-comp/theme-context";
+
 
 export function NavUser({
   user,
   onLogout,
 }: {
   user: {
-    code: string
-    emailId: string
-    avatar: string
+    code: string;
+    emailId: string;
+    avatar: string;
   };
-  onLogout: () => void
+  onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [showChange, setShowChange] = useState(false);
@@ -50,6 +53,7 @@ export function NavUser({
   const [changeMsg, setChangeMsg] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     onLogout();
@@ -81,10 +85,10 @@ export function NavUser({
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg"
-              //side={isMobile ? "bottom" : "right"}
-              align="end"
-              sideOffset={4}
+              className="min-w-[var(--sidebar-width,16rem)] w-[var(--sidebar-width,16rem)] rounded-lg"
+              side="left"
+              align="start"
+              sideOffset={0}
             >
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
@@ -124,6 +128,12 @@ export function NavUser({
               <DropdownMenuItem onClick={() => setOpen(true)}>
                 <IconLogout />
                 Log out
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={toggleTheme}>
+                <span className="flex items-center gap-2">
+                  {theme === "dark" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
