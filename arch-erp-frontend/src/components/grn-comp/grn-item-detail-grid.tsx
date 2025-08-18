@@ -24,14 +24,14 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
   // };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mt-4">
-      <h2 className="text-lg font-bold mb-2">Item Details</h2>
+    <div className="bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mt-4">
+      <h2 className="text-lg font-bold mb-2 dark:text-gray-100">Item Details</h2>
       {itemDetails.length === 0 ? (
         <div className="text-gray-500 text-sm italic">No item details available. Please select a PO.</div>
       ) : (
       <table className="table-auto w-full">
         <thead>
-          <tr className="bg-gray-100 text-left">
+          <tr className="bg-gray-100 dark:bg-[#18181b] text-left text-gray-800 dark:text-gray-100">
             <th className="p-2 border" >SNo.</th>
             <th className="p-2 border">Selection</th>
             <th className="p-2 border">Item Name</th>
@@ -44,7 +44,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
         <tbody>
           {itemDetails.map((item, index) => (
             <tr key={index}
-            className="hover:bg-gray-50 cursor-pointer"
+            className="hover:bg-gray-50 dark:hover:bg-[#2a2f38] cursor-pointer text-gray-900 dark:text-gray-100 "
               onClick={() => onRowClick?.(item)}
               >
               <td>{index+1}</td>
@@ -53,7 +53,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
                   type="checkbox"
                   checked={item.selected || false}
                   disabled={isReadOnly}
-                  className={isReadOnly ? "cursor-not-allowed" : ""}
+                  className={`border rounded p-1 w-full ${isReadOnly ? "bg-gray-200 text-gray-500" : "bg-white dark:bg-[#23272f] dark:text-gray-100"}`}
                   onChange={(e) => {
                     const updated = [...itemDetails];
                     updated[index].selected = e.target.checked;

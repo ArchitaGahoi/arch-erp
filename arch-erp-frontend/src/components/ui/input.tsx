@@ -21,7 +21,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
           "focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500",
           "hover:border-blue-400",
           // Dark mode focus/hover
-          "dark:focus:border-blue-400 dark:focus:ring-blue-400 dark:hover:border-blue-300",
+          "dark:focus:border-blue-400 dark:hover:border-blue-300",
         className
       )}
       {...props}

@@ -169,7 +169,7 @@ const GRNForm = forwardRef(function grnForm(
   console.log("field",form);
   return (
     <Form {...form}>
-      <form className="grid gap-4 bg-white p-4 rounded-lg shadow mb-4">
+      <form className="grid gap-4 bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             name="grnNo"
@@ -249,9 +249,13 @@ const GRNForm = forwardRef(function grnForm(
                       <div className="relative">
                         <Combobox.Input
                           disabled={disableAll}
-                          className={`w-full border rounded-md p-2 ${
-                            disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""
-                          }`}
+                          className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                        focus:outline-none focus:border-blue-500 
+                        hover:border-blue-400
+                        dark:focus:border-blue-400 dark:hover:border-blue-300
+                        ${getErrorClass("statusNo") || ""} 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
                           onChange={(e) => {
                             if (!disableAll) {
                               field.onChange(e.target.value);
@@ -262,14 +266,16 @@ const GRNForm = forwardRef(function grnForm(
                           placeholder="Select GRN Status"
                         />
                         {!disableAll && filteredStatus.length > 0 && (
-                          <Combobox.Options className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                          <Combobox.Options className="absolute z-10 w-full bg-white dark:bg-[#18181b] border border-gray-300 dark:border-gray-700 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                             {filteredStatus.map((status, index) => (
                               <Combobox.Option
                                 key={index}
                                 value={status}
                                 className={({ selected }) =>
                                   `cursor-pointer px-4 py-2 ${
-                                    selected ? "bg-blue-500 text-white" : "bg-white"
+                                    selected
+                                      ? "bg-blue-500 text-white dark:bg-blue-700"
+                                      : "bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100"
                                   }`
                                 }
                               >
@@ -302,10 +308,13 @@ const GRNForm = forwardRef(function grnForm(
                       <Combobox.Input
                         // {...form.register ("supplierLocationNo", { required: true })}
                         // aria-invalid={errData?. supplierLocationNo? "true" : "false"}
-                        className={`w-full border rounded-md p-2 ${
-                          getErrorClass("supplierLocationNo") || ""
-                        } 
-                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
+                        className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                        focus:outline-none focus:border-blue-500 
+                        hover:border-blue-400
+                        dark:focus:border-blue-400 dark:hover:border-blue-300
+                        ${getErrorClass("supplierLocationNo") || ""} 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
                         onChange={(e) => {
                           if (!disableAll) setQuery(e.target.value);
                           if (errData?.supplierLocationNo) errData.supplierLocationNo = "";
@@ -320,7 +329,7 @@ const GRNForm = forwardRef(function grnForm(
                         placeholder="Select Supplier Location"
                       />
                       {!disableAll && filteredSuppliers.length > 0 && (
-                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <Combobox.Options className="absolute z-10 w-full bg-white dark:bg-[#18181b] border border-gray-300 dark:border-gray-700 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
                             <Combobox.Option key={partner.bpId} value={partner.bpId}>
                               {partner.bpName} ({partner.bpCode}) ({partner.bpAddress})
@@ -386,10 +395,13 @@ const GRNForm = forwardRef(function grnForm(
                   >
                     <div className="relative">
                       <Combobox.Input
-                        className={`w-full border rounded-md p-2 ${
-                          getErrorClass("poNo") || ""
-                        } 
-                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
+                        className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                        focus:outline-none focus:border-blue-500 
+                        hover:border-blue-400
+                        dark:focus:border-blue-400 dark:hover:border-blue-300
+                        ${getErrorClass("poNo") || ""} 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
                         onChange={(e) => {
                           if (!disableAll) {
                           setQuery(e.target.value);
@@ -401,7 +413,7 @@ const GRNForm = forwardRef(function grnForm(
                         disabled={disableAll}
                       />
                       {!disableAll && poOptions.length > 0 && (
-                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <Combobox.Options className="absolute z-10 w-full bg-white dark:bg-[#18181b] border border-gray-300 dark:border-gray-700 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {poOptions.map((po) => (
                             <Combobox.Option key={po.poId} value={po.poNo}>
                               {po.poNo}
