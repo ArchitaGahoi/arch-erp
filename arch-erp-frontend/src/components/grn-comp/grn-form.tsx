@@ -250,12 +250,12 @@ const GRNForm = forwardRef(function grnForm(
                         <Combobox.Input
                           disabled={disableAll}
                           className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
-                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
-                        focus:outline-none focus:border-blue-500 
-                        hover:border-blue-400
-                        dark:focus:border-blue-400 dark:hover:border-blue-300
-                        ${getErrorClass("statusNo") || ""} 
-                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
+                          dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                          focus:outline-none focus:border-blue-500 
+                          hover:border-blue-400
+                          dark:focus:border-blue-400 dark:hover:border-blue-300
+                          ${getErrorClass("statusNo") || ""} 
+                          ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
                           onChange={(e) => {
                             if (!disableAll) {
                               field.onChange(e.target.value);
