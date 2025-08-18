@@ -3,9 +3,10 @@ import type {GRN} from "@/components/grn-comp/grn";
 interface GRNTableProps {
   receipts: GRN[];
   onEdit: (receipts: GRN) => void;
+  onRowClick: (receipts: GRN) => void;
 }
 
-const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
+const GRNTable = ({ receipts, onEdit, onRowClick }: GRNTableProps) => {
     const statusNoes = [
     { label: "Initialised", value: 1 },
     { label: "Authorised", value: 2 },
@@ -14,40 +15,51 @@ const GRNTable = ({ receipts, onEdit }: GRNTableProps) => {
   
   
   return (
-    <table className="w-full border border-gray-150 rounded shadow-sm">
-      <thead className="bg-gray-100 text-left">
+    <table className="w-full border border-gray-150 dark:border-gray-700 rounded shadow-sm bg-white dark:bg-[#23272f]">
+      <thead className="bg-gray-100 dark:bg-[#0c1932] text-left text-gray-900 dark:text-gray-100">
         <tr>
-          <th className="p-2 border">Sr No.</th>
-          <th className="p-2 border">GRN No.</th>
-          <th className="p-2 border">GRN Date</th>
-          <th className="p-2 border">Status</th>
-          <th className="p-2 border">Supplier Location</th>
-          <th className="p-2 border">PO No.</th>
-          <th className="p-2 border">Challan No.</th>
-          <th className="p-2 border">Challan Date</th>
-          <th className="p-2 border">Action</th>
+          <th className="p-2 border dark:border-gray-700">Sr No.</th>
+          <th className="p-2 border dark:border-gray-700">GRN No.</th>
+          <th className="p-2 border dark:border-gray-700">GRN Date</th>
+          <th className="p-2 border dark:border-gray-700">Status</th>
+          <th className="p-2 border dark:border-gray-700">Supplier Location</th>
+          <th className="p-2 border dark:border-gray-700">PO No.</th>
+          <th className="p-2 border dark:border-gray-700">Challan No.</th>
+          <th className="p-2 border dark:border-gray-700">Challan Date</th>
+          <th className="p-2 border dark:border-gray-700">Action</th>
         </tr>
       </thead>
       <tbody>
         {receipts.map((receipt, index) => {
           const statusNo = statusNoes.find((ut) => ut.value === Number(receipt.statusNo));
           return(
-          <tr key={receipt.grnId}>
-            <td className="p-2 border">{index + 1}</td>
-            <td className="p-2 border">{receipt.grnNo}</td>
-            <td className="p-2 border">{receipt.grnDate.toLocaleString()}</td>
-            <td className="p-2 border">{statusNo?.label}</td>
-            <td className="p-2 border">
+          <tr key={receipt.grnId}
+            className={
+                
+                " hover:bg-gray-100 dark:hover:bg-orange-800 cursor-pointer text-gray-900 dark:text-gray-100"
+              }
+              onClick={() => onRowClick?.(receipt)}
+          >
+            <td className="p-2 border dark:border-gray-700">{index + 1}</td>
+            <td className="p-2 border dark:border-gray-700">{receipt.grnNo}</td>
+            <td className="p-2 border dark:border-gray-700">{receipt.grnDate.toLocaleString()}</td>
+            <td className="p-2 border dark:border-gray-700">{statusNo?.label}</td>
+            <td className="p-2 border dark:border-gray-700">
               {receipt.bpName
                 ? `${receipt.bpName} (${receipt.bpCode}) – ${receipt.bpAddress}`
                 : receipt.actualBpId ?? receipt.supplierLocationNo}
             </td>
 
-            <td className="p-2 border">{receipt.poNo}</td>
-            <td className="p-2 border">{receipt.challanNo}</td>
-            <td className="p-2 border">{receipt.challanDate.toLocaleString()}</td>
-            <td className="p-2 border">
-              <Button onClick={() => onEdit(receipt)} variant="outline">
+            <td className="p-2 border dark:border-gray-700">{receipt.poNo}</td>
+            <td className="p-2 border dark:border-gray-700">{receipt.challanNo}</td>
+            <td className="p-2 border dark:border-gray-700">{receipt.challanDate.toLocaleString()}</td>
+            <td className="p-2 border dark:border-gray-700">
+              <Button size="sm"
+                className="px-3 py-1 rounded text-sm transition-colors border border-gray-300 text-gray-900 bg-white hover:bg-gray-50
+                    dark:bg-orange-500 dark:hover:bg-orange-600 dark:text-white dark:border-transparent"
+                onClick={() => onEdit(receipt)} 
+                variant="outline"
+                >
                 Edit
               </Button>
             </td>

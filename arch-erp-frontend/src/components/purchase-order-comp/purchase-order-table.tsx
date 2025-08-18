@@ -14,16 +14,16 @@ const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
   
   
   return (
-    <table className="w-full border border-gray-150 rounded shadow-sm">
-      <thead className="bg-gray-100 text-left">
+    <table className="w-full border border-gray-150 dark:border-gray-700 rounded shadow-sm bg-white dark:bg-[#23272f]">
+      <thead className="bg-gray-100 dark:bg-[#0c1932] text-left text-gray-900 dark:text-gray-100">
         <tr>
-          <th className="p-2 border">Sr No.</th>
-          <th className="p-2 border">PO No</th>
-          <th className="p-2 border">PO Date</th>
-          <th className="p-2 border">Status</th>
-          <th className="p-2 border">Supplier Location</th>
-          <th className="p-2 border">Net Amount</th>
-          <th className="p-2 border">Action</th>
+          <th className="p-2 border dark:border-gray-700">Sr No.</th>
+          <th className="p-2 border dark:border-gray-700">PO No</th>
+          <th className="p-2 border dark:border-gray-700">PO Date</th>
+          <th className="p-2 border dark:border-gray-700">Status</th>
+          <th className="p-2 border dark:border-gray-700">Supplier Location</th>
+          <th className="p-2 border dark:border-gray-700">Net Amount</th>
+          <th className="p-2 border dark:border-gray-700">Action</th>
         </tr>
       </thead>
       <tbody>
@@ -31,20 +31,25 @@ const PurchaseOrderTable = ({ orders, onEdit }: PurchaseOrderTableProps) => {
           const statusNo = statusNoes.find((ut) => ut.value === Number(order.statusNo));
           return(
           <tr key={order.poId}>
-            <td className="p-2 border">{index + 1}</td>
-            <td className="p-2 border">{order.poNo}</td>
-            <td className="p-2 border">{order.poDate.toLocaleString()}</td>
-            <td className="p-2 border">{statusNo?.label}</td>
-            <td className="p-2 border">
+            <td className="p-2 border dark:border-gray-700">{index + 1}</td>
+            <td className="p-2 border dark:border-gray-700">{order.poNo}</td>
+            <td className="p-2 border dark:border-gray-700">{order.poDate.toLocaleString()}</td>
+            <td className="p-2 border dark:border-gray-700">{statusNo?.label}</td>
+            <td className="p-2 border dark:border-gray-700">
               {order.bpName
                 ? `${order.bpName} (${order.bpCode}) – ${order.bpAddress}`
                 : order.supplierLocationNo}
             </td>
 
 
-            <td className="p-2 border">{Number(order.netAmount).toFixed(2)}</td>
-            <td className="p-2 border">
-              <Button onClick={() => onEdit(order)} variant="outline">
+            <td className="p-2 border dark:border-gray-700">{Number(order.netAmount).toFixed(2)}</td>
+            <td className="p-2 border dark:border-gray-700 flex items-center justify-center">
+              <Button 
+                size="sm"
+                className="px-3 py-1 rounded text-sm transition-colors border border-gray-300 text-gray-900 bg-white hover:bg-gray-50
+                    dark:bg-orange-500 dark:hover:bg-orange-600 dark:text-white dark:border-transparent"
+                onClick={() => onEdit(order)} variant="outline"
+                >
                 Edit
               </Button>
             </td>
