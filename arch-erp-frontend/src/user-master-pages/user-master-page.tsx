@@ -187,7 +187,7 @@ export default function UserMasterPage() {
   };
 
   return (
-    <div className="p-6 w-full min-h-screen bg-gray-100">
+    <div className="p-6 w-full min-h-screen bg-gray-100 dark:bg-[#18181b] transition-colors">
       <UserHeader
         onAdd={handleClear}
         onSearch={handleSearch}
