@@ -82,7 +82,7 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
       <form
         id="businessPartnerForm"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full grid grid-cols-1 gap-4 bg-white p-4 rounded-lg shadow mb-4"
+        className="w-full grid grid-cols-1 gap-4 bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mb-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
@@ -90,10 +90,11 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="bpCode"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">Business Partner Code</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">Business Partner Code</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
-                {...form.register ("bpCode", { required: true })}
+                <Input
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
+                  {...form.register ("bpCode", { required: true })}
                     aria-invalid={errData?.bpCode ? "true" : "false"} 
                 placeholder="Business Partner Code" {...field}
                 onChange={(e) => {
@@ -113,9 +114,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="bpName"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">Business Partner Name</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">Business Partner Name</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                   placeholder="Business Partner Name" {...field}
                   maxLength={100}
                   />
@@ -129,9 +131,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="bpType"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">Business Partner Type</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">Business Partner Type</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                 className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                  placeholder="Business Partner Type" {...field}
                  maxLength={30}
                  />
@@ -145,9 +148,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="bpAddress"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">Business Partner Address</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">Business Partner Address</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                 className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                  placeholder="Business Partner Address" {...field} 
                  maxLength={100}
                  />
@@ -161,9 +165,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="pin"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">PIN</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">PIN</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                 placeholder="PIN" {...field} 
                 maxLength={6}
                 />
@@ -177,9 +182,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="state"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">State</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">State</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                   placeholder="State" {...field} 
                   maxLength={50}
                   />
@@ -193,9 +199,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="city"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">City</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">City</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                   placeholder="City" {...field} 
                   maxLength={50}
                   />
@@ -209,9 +216,10 @@ const BusinessPartnerForm = forwardRef(function BusinessPartnerForm(
           name="country"
           render={({ field }) => (
             <div className="grid grid-cols-3 items-center gap-2">
-              <FormLabel className="col-span-1">Country</FormLabel>
+              <FormLabel className="col-span-1 text-gray-900 dark:text-gray-100">Country</FormLabel>
               <FormControl className="col-span-2">
-                <Input className="w-full border bg-white rounded-md p-2"
+                <Input
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100 rounded-md p-2"
                   placeholder="Country" {...field} 
                   maxLength={50}
                   />
