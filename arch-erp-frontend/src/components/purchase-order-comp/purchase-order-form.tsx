@@ -267,9 +267,13 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                     <div className="relative">
                       <Combobox.Input
                         disabled={disableAll}
-                        className={`w-full border rounded-md p-2 ${
-                          getErrorClass("supplierLocationNo") || ""
-                        } ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
+                        className={`block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                        focus:outline-none focus:border-blue-500 
+                        hover:border-blue-400
+                        dark:focus:border-blue-400 dark:hover:border-blue-300
+                        ${getErrorClass("supplierLocationNo") || ""} 
+                        ${disableAll ? "bg-gray-200 text-gray-500 cursor-not-allowed" : ""}`}
                         onChange={(e) => {
                           if (!disableAll) setQuery(e.target.value);
                         }}
@@ -285,7 +289,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
                         placeholder="Select Supplier Location"
                       />
                       {!disableAll && filteredSuppliers.length > 0 && (
-                        <Combobox.Options className="absolute z-10 w-full bg-white border mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                        <Combobox.Options className="absolute z-10 w-full bg-white dark:bg-[#18181b] border border-gray-300 dark:border-gray-700 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                           {filteredSuppliers.map((partner) => (
                             <Combobox.Option key={partner.bpId} value={partner.bpId}>
                               {partner.bpName} ({partner.bpCode}) ({partner.bpAddress})

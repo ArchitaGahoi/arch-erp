@@ -92,15 +92,15 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
   ];
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mt-4">
+    <div className="bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mt-4">
       <div className="flex flex-row justify-between items-center mb-3">
-        <h2 className="text-lg font-bold">Tax Details</h2>
+        <h2 className="text-lg font-bold mb-2 dark:text-gray-100">Tax Details</h2>
         {!isReadOnly && <Button onClick={handleAddRow}>Add Tax</Button>}
       </div>
 
       <table className="table-auto w-full">
         <thead>
-          <tr className="bg-gray-100 text-left">
+          <tr className="bg-gray-100 dark:bg-[#18181b] text-left text-gray-800 dark:text-gray-100">
             <th className="p-2 border">Tax Name</th>
             <th className="p-2 border">Nature</th>
             <th className="p-2 border">Amount</th>
@@ -110,7 +110,7 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
         <tbody>
           {/* Editable rows */}
           {!isReadOnly &&   editableRows.map((tax, index) => (
-            <tr key={`editable-${index}`} className="bg-yellow-50">
+            <tr key={`editable-${index}`} className="bg-yellow-50 dark:bg-[#2e2e36]">
               <td className="border p-2">
                 <Input
                   placeholder="Tax Name"
@@ -121,17 +121,24 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
               <td className="border p-2">
                 <Combobox value={tax.nature} onChange={(val) => handleFieldChange(index, "nature", val)}>
                   <Combobox.Input
-                    className="w-full border border-gray-300 rounded-md p-2"
+                    className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                    dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                    hover:border-blue-400 dark:focus:border-blue-400 dark:hover:border-blue-300"
                     displayValue={(val: number) => natureOptions.find((o) => o.value === val)?.label || ""}
                     placeholder="Select"
                   />
-                  <Combobox.Options className="absolute z-10 bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <Combobox.Options className="absolute z-10 w-full bg-white dark:bg-[#18181b] border border-gray-300 dark:border-gray-700 mt-1 rounded-md shadow-lg max-h-60 overflow-auto">
                     {natureOptions.map((option) => (
                       <Combobox.Option
                         key={option.value}
                         value={option.value}
                         className={({ selected }) =>
-                          `cursor-pointer px-4 py-2 ${selected ? "bg-blue-500 text-white" : "bg-white"}`
+                          `cursor-pointer px-4 py-2 ${
+                          selected
+                          ? "bg-blue-500 text-white dark:bg-blue-700"
+                          : "bg-white dark:bg-[#18181b] text-gray-900 dark:text-gray-100"
+                          }`
                         }
                       >
                         {option.label}
@@ -142,10 +149,13 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
               </td>
               <td className="border p-2">
                 <NumericInput
-                  className="w-full border border-gray-300 rounded-md p-2"
+                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+                  dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400
+                  focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                  hover:border-blue-400 dark:focus:border-blue-400 dark:hover:border-blue-300"
                   length={[12, 2]}
                   isDecimal={true}
-                  isAbsolute={true}
+                  isAbsolute={true} 
                   value={tax.amount}
                   onChange={(val : string | number) => handleFieldChange(index, "amount", Number(val))}
                 />
@@ -161,10 +171,10 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
 
           {/* Saved rows */}
           {taxDetails.map((tax, index) => (
-            <tr key={`saved-${index}`} onClick={() => onRowClick?.(tax)} className="hover:bg-gray-50 cursor-pointer">
-              <td className="border p-2">{tax.taxName}</td>
-              <td className="border p-2">{tax.nature === 1 ? "+" : "-"}</td>
-              <td className="border p-2">{tax.amount}</td>
+            <tr key={`saved-${index}`} onClick={() => onRowClick?.(tax)} className="hover:bg-gray-50 dark:hover:bg-[#2e2e36] cursor-pointer">
+              <td className="border p-2 dark:text-gray-100">{tax.taxName}</td>
+              <td className="border p-2 dark:text-gray-100">{tax.nature === 1 ? "+" : "-"}</td>
+              <td className="border p-2 dark:text-gray-100">{tax.amount}</td>
               {!isReadOnly && (
               <td className="border p-2">
                 <Button variant="outline" onClick={() => handleDeleteSaved(index)}>
@@ -177,7 +187,7 @@ const TaxDetailGrid = ({ taxDetails, setTaxDetails, onRowClick, onTotalChange, i
         </tbody>
       </table>
 
-      <p className="font-semibold mt-2 flex justify-end">
+      <p className="font-semibold mt-2 flex justify-end dark:text-gray-100">
         Total Tax Amount: {totalAmount.toFixed(2)}
       </p>
     </div>

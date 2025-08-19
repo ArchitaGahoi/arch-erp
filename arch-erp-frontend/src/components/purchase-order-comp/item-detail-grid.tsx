@@ -32,11 +32,11 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange
   }, [itemDetails]);
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mt-4">
-      <h2 className="text-lg font-bold mb-2">Item Details</h2>
+    <div className="bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mt-4">
+      <h2 className="text-lg font-bold mb-2 dark:text-gray-100">Item Details</h2>
       <table className="table-auto w-full">
         <thead>
-          <tr className="bg-gray-100 text-left">
+          <tr className="bg-gray-100 dark:bg-[#18181b] text-left text-gray-800 dark:text-gray-100 ">
             <th className="p-2 border" >SNo.</th>
             <th className="p-2 border">Item Name</th>
             <th className="p-2 border">Unit</th>
@@ -49,7 +49,7 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, onTotalChange
         <tbody>
           {itemDetails.map((item, index) => (
             <tr key={index}
-            className="hover:bg-gray-50 cursor-pointer"
+            className="hover:bg-gray-50 dark:hover:bg-[#2a2f38] cursor-pointer text-gray-900 dark:text-gray-100"
               onClick={() => onRowClick?.(item)}
               >
               <td>{index+1}</td>
