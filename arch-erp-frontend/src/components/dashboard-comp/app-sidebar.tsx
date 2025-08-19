@@ -71,11 +71,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       link: "/grn-search",
       icon: IconFolder,
     },
-    {
-      title: "Material Issue",
-      link: "#",
-      icon: IconFolder,
-    },
+    // {
+    //   title: "Material Issue",
+    //   link: "#",
+    //   icon: IconFolder,
+    // },
   ];
     const { theme } = useTheme();
     // navClouds: [
