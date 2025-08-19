@@ -57,7 +57,7 @@ const ItemMasterForm = forwardRef(function ItemMasterForm(
       <form
         id="itemMasterForm"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 bg-white p-4 rounded-lg shadow mb-4"
+        className="space-y-4 bg-white dark:bg-[#23272f] p-4 rounded-lg shadow mb-4"
       >
         <div className="flex items-center">
           <FormLabel className="w-24">Item Code</FormLabel>

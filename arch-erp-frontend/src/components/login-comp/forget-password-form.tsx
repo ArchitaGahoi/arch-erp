@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 export function ForgetPasswordForm() {
   const [emailId, setEmailId] = useState("");
@@ -53,11 +54,11 @@ export function ForgetPasswordForm() {
   };
 
    return (
-    <div className="max-w-sm mx-auto mt-10 p-6 bg-white rounded shadow">
+    <div className="max-w-sm mx-auto mt-10 p-6 bg-white dark:bg-[#1a1d23] rounded-2xl shadow">
       {step === 1 && (
         <form onSubmit={handleRequest} className="space-y-4">
-          <h2 className="text-lg font-bold">Forgot Password</h2>
-          <input
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">Forgot Password</h2>
+          <Input
             className="w-full border p-2 rounded"
             type="email"
             placeholder="Enter your email"
@@ -65,7 +66,7 @@ export function ForgetPasswordForm() {
             onChange={e => setEmailId(e.target.value)}
             required
           />
-          <button className="btn btn-primary w-full" type="submit">Send OTP</button>
+          <button className="btn btn-primary w-full " type="submit">Send OTP</button>
           {msg && <div className="text-red-500">{msg}</div>}
         </form>
       )}
@@ -73,7 +74,7 @@ export function ForgetPasswordForm() {
       {step === 2 && (
         <form onSubmit={handleOtpVerify} className="space-y-4">
           <h2 className="text-lg font-bold">Verify OTP</h2>
-          <input
+          <Input
             className="w-full border p-2 rounded"
             type="text"
             placeholder="Enter OTP"
@@ -89,7 +90,7 @@ export function ForgetPasswordForm() {
       {step === 3 && (
         <form onSubmit={handleReset} className="space-y-4">
           <h2 className="text-lg font-bold">Reset Password</h2>
-          <input
+          <Input
             className="w-full border p-2 rounded"
             type="password"
             placeholder="New Password"
@@ -97,7 +98,7 @@ export function ForgetPasswordForm() {
             onChange={e => setPassword(e.target.value)}
             required
           />
-          <input
+          <Input
             className="w-full border p-2 rounded"
             type="password"
             placeholder="Confirm Password"

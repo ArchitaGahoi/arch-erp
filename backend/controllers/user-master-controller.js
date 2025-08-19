@@ -41,6 +41,17 @@ exports.forgetPassword = (req, res) => {
         },
       });
 
+      // verify connection config
+      transporter.verify((error, success) => {
+        if (error) {
+          console.error("❌ SMTP connection failed:", error);
+        } else {
+          console.log("✅ SMTP server is ready");
+        }
+      });
+
+
+
       await transporter.sendMail({
         from: `"Arch-erp" <${process.env.EMAIL_USER}>`,
         to: emailId,
@@ -48,6 +59,7 @@ exports.forgetPassword = (req, res) => {
         html: `<p>Your OTP is <b>${otp}</b>. It will expire in 5 minutes.</p>`,
       });
 
+      console.log(`✅ OTP sent to email: ${emailId}`);
       res.json({ message: "OTP sent to email" });
     } catch (mailErr) {
       console.error("Mail error", mailErr);
