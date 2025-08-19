@@ -257,9 +257,6 @@ exports.createGRN = (req, res) => {
 
 
 
-
-
-
 // GET ALL GRNs
 exports.getAllGRNs = (req, res) => {
   const sql = `SELECT 
@@ -306,29 +303,50 @@ exports.getGRNById = (req, res) => {
     WHERE G.grnId = ?
   `;
 
+  // const itemSql = `
+  //   SELECT 
+  //     p.itemDetailId AS poitemDetailId,
+  //     i.itemName,
+  //     p.quantity AS poQuantity,
+  //     COALESCE(pod.preRecivedQuantity, 0) AS preRecivedQuantity,
+  //     COALESCE(g.recievedQty, 0) AS recievedQty,
+  //     CASE WHEN g.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS selected
+  //   FROM PurchaseOrderItemDetail p
+  //   JOIN ItemMaster i ON p.itemId = i.itemId
+  //   LEFT JOIN GRNItemDetail g 
+  //          ON p.itemDetailId = g.poitemDetailId AND g.grnId = ?
+  //   LEFT JOIN (
+  //       SELECT poitemDetailId, SUM(recievedQty) AS preRecivedQuantity
+  //       FROM GRNItemDetail
+  //       WHERE grnId != ?
+  //       GROUP BY poitemDetailId
+  //   ) pod ON p.itemDetailId = pod.poitemDetailId
+  //   WHERE p.poId = (
+  //     SELECT poId FROM PurchaseOrder 
+  //     WHERE poNo = (SELECT poNo FROM GRN WHERE grnId = ?)
+  //   )
+  // `;
   const itemSql = `
     SELECT 
       p.itemDetailId AS poitemDetailId,
       i.itemName,
       p.quantity AS poQuantity,
-      COALESCE(pod.preRecivedQuantity, 0) AS preRecivedQuantity,
-      COALESCE(g.recievedQty, 0) AS recievedQty,
-      CASE WHEN g.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS selected
+      COALESCE(SUM(gAll.recievedQty), 0) - COALESCE(gThis.recievedQty, 0) AS preRecivedQuantity,
+      COALESCE(gThis.recievedQty, 0) AS recievedQty,
+      CASE WHEN gThis.poitemDetailId IS NOT NULL THEN 1 ELSE 0 END AS selected
     FROM PurchaseOrderItemDetail p
     JOIN ItemMaster i ON p.itemId = i.itemId
-    LEFT JOIN GRNItemDetail g 
-           ON p.itemDetailId = g.poitemDetailId AND g.grnId = ?
-    LEFT JOIN (
-        SELECT poitemDetailId, SUM(recievedQty) AS preRecivedQuantity
-        FROM GRNItemDetail
-        WHERE grnId != ?
-        GROUP BY poitemDetailId
-    ) pod ON p.itemDetailId = pod.poitemDetailId
+    LEFT JOIN GRNItemDetail gThis 
+          ON p.itemDetailId = gThis.poitemDetailId AND gThis.gr nId = ?
+    LEFT JOIN GRNItemDetail gAll 
+          ON p.itemDetailId = gAll.poitemDetailId
     WHERE p.poId = (
       SELECT poId FROM PurchaseOrder 
       WHERE poNo = (SELECT poNo FROM GRN WHERE grnId = ?)
     )
+    GROUP BY p.itemDetailId, i.itemName, p.quantity, gThis.recievedQty
   `;
+
 
   db.query(grnSql, [grnId], (err, grn) => {
     if (err || grn.length === 0) {

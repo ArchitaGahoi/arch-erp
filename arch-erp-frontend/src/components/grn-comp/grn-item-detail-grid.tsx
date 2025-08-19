@@ -1,6 +1,7 @@
 //import { Button } from "@/components/ui/button";
 
 interface ItemDetail {
+  poitemDetailId: number; 
   itemName: string;
   poQuantity: number;
   preRecivedQuantity: number;
@@ -42,7 +43,13 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
           </tr>
         </thead>
         <tbody>
-          {itemDetails.map((item, index) => (
+          {itemDetails.map((item, index) =>{
+          const currentBalance =
+                item.poQuantity - (item.preRecivedQuantity + (item.recivedQuantity || 0));
+          
+          
+          
+          return (
             <tr key={index}
             className="hover:bg-gray-50 dark:hover:bg-[#2a2f38] cursor-pointer text-gray-900 dark:text-gray-100 "
               onClick={() => onRowClick?.(item)}
@@ -66,23 +73,29 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
                 
               </td>
               <td>{item.preRecivedQuantity}</td>
-              <td>{item.balance}</td>
+              <td>{currentBalance}</td>
               <td><input
                   type="number"
                   min={0}
-                  max={item.poQuantity - item.preRecivedQuantity}
-                  value={item.recivedQuantity}
+                  //max={item.poQuantity - item.preRecivedQuantity}
+                  max={currentBalance}
+                  value={item.recivedQuantity || 0}
                   disabled={isReadOnly}
                   className={`border rounded p-1 w-full ${isReadOnly ? "bg-gray-200 text-gray-500" : ""}`}
                   onChange={(e) => {
                     let inputQty = Number(e.target.value);
-                    const maxQty = item.poQuantity - item.preRecivedQuantity;
+                    //const maxQty = item.poQuantity - item.preRecivedQuantity;
 
                     if (inputQty < 0) inputQty = 0;
 
-                    if (inputQty > maxQty) {
-                      alert("Received quantity exceeds PO balance");
-                      return;
+                    // if (inputQty > maxQty) {
+                    //   alert("Received quantity exceeds PO balance");
+                    //   return;
+                    // }
+
+                    if (inputQty > currentBalance) {
+                          alert("Received quantity exceeds PO balance");
+                          return;
                     }
 
                     const updated = [...itemDetails];
@@ -98,7 +111,8 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
                 </Button>
               </td> */}
             </tr>
-          ))}
+          );
+        })}
         </tbody>
       </table>
       )}

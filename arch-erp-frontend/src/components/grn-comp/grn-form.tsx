@@ -368,25 +368,48 @@ const GRNForm = forwardRef(function grnForm(
                     }
                     //form.setValue("supplierLocationNo", selectedPO.poId);
 
-                    try {
-                      const res = await api.get(`/purchase-order/${selectedPO.poId}`);
-                      if (res.data?.itemDetails) {
-                        const items = res.data.itemDetails.map((item: any) => ({
-                        poitemDetailId: item.itemDetailId,   
-                        itemName: item.itemName,
-                        poQuantity: item.quantity,          
-                        preRecivedQuantity: item.preRecivedQuantity || 0,
-                        balance: (item.quantity - item.preRecivedQuantity) || item.quantity,
-                        recivedQuantity: item.recivedQuantity || 0,
-                        selected: false
-                      }));
+                    // try {
+                    //   const res = await api.get(`/purchase-order/${selectedPO.poId}`);
+                    //   if (res.data?.itemDetails) {
+                    //     const items = res.data.itemDetails.map((item: any) => ({
+                    //     poitemDetailId: item.itemDetailId,   
+                    //     itemName: item.itemName,
+                    //     poQuantity: item.quantity,          
+                    //     preRecivedQuantity: item.preRecivedQuantity || 0,
+                    //     balance: (item.quantity - item.preRecivedQuantity) || item.quantity,
+                    //     recivedQuantity: item.recivedQuantity || 0,
+                    //     selected: false
+                    //   }));
 
+                    //     setItemDetails(items);
+                    //   }
+                    // } catch (err) {
+                    //   console.error("Error fetching PO item details by ID", err);
+                    //   setItemDetails([]);
+                    // }
+
+                    try {
+                      const res = await api.get(`/grn/items/${selectedPO.poNo}`);
+                      if (Array.isArray(res.data)) {
+                        const items = res.data.map((item: any) => ({
+                          poitemDetailId: item.poitemDetailId,
+                          itemName: item.itemName,
+                          poQuantity: item.poQuantity,
+                          preRecivedQuantity: item.preRecivedQuantity || 0,
+                          balance: item.balance || (item.poQuantity - (item.preRecivedQuantity || 0)),
+                          recivedQuantity: 0,   // always start fresh when creating a new GRN
+                          selected: false
+                        }));
+                        console.log("Fetched items:", items);
                         setItemDetails(items);
+                      } else {
+                        setItemDetails([]);
                       }
                     } catch (err) {
-                      console.error("Error fetching PO item details by ID", err);
+                      console.error("Error fetching PO item details by PO No", err);
                       setItemDetails([]);
                     }
+
                     // onPOChange?.(val);
                         if (errData?.poNo) errData.poNo = "";
                       }
