@@ -3,7 +3,7 @@ const router = express.Router();
 const grnController = require('../controllers/grn-controller');
 const { authMiddleware } = require('../middleware/auth-middleware');
 
-router.get('/items/:poNo', grnController.getPOItemsForGRN); // to auto-fill item table
+router.get('/po-items/:poNo', grnController.getPOItemsForGRN); // to auto-fill item table
 router.get('/', grnController.getAllGRNs);
 router.get('/:id', grnController.getGRNById);
 

@@ -133,7 +133,7 @@ export default function GRNPage() {
             poQuantity: poQty,  
             preRecivedQuantity: pre,
             recivedQuantity: curr,
-            balance: poQty - pre,
+            balance: poQty - (pre + curr),
             selected: item.selected === 1,
           };
         });

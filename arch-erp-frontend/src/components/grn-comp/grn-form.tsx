@@ -304,7 +304,7 @@ const GRNForm = forwardRef(function grnForm(
                 <FormControl>
                   <Combobox value={field.value} onChange={(val) => {
                     field.onChange(val); 
-                    props.onSupplierChange?.(String(val));
+                    //props.onSupplierChange?.(String(val));
                     
                   }} disabled={disableAll}>
                     <div className="relative">
@@ -391,29 +391,52 @@ const GRNForm = forwardRef(function grnForm(
                     //   setItemDetails([]);
                     // }
 
+                    // try {
+                    //   const res = await api.get(`/grn/items/${selectedPO.poNo}`);
+                    //   if (Array.isArray(res.data)) {
+                    //     const items = res.data.map((item: any) => ({
+                    //       poitemDetailId: item.poitemDetailId,
+                    //       itemName: item.itemName,
+                    //       poQuantity: item.poQuantity,
+                    //       preRecivedQuantity: item.preRecivedQuantity || 0,
+                    //       balance: item.balance || (item.poQuantity - (item.preRecivedQuantity || 0)),
+                    //       recivedQuantity: 0,   // always start fresh when creating a new GRN
+                    //       selected: false
+                    //     }));
+                    //     console.log("Fetched items:", items);
+                    //     setItemDetails(items);
+                    //   } else {
+                    //     setItemDetails([]);
+                    //   }
+                    // } catch (err) {
+                    //   console.error("Error fetching PO item details by PO No", err);
+                    //   setItemDetails([]);
+                    // }
+
                     try {
-                      const res = await api.get(`/grn/items/${selectedPO.poNo}`);
-                      if (Array.isArray(res.data)) {
-                        const items = res.data.map((item: any) => ({
-                          poitemDetailId: item.poitemDetailId,
-                          itemName: item.itemName,
-                          poQuantity: item.poQuantity,
-                          preRecivedQuantity: item.preRecivedQuantity || 0,
-                          balance: item.balance || (item.poQuantity - (item.preRecivedQuantity || 0)),
-                          recivedQuantity: 0,   // always start fresh when creating a new GRN
-                          selected: false
-                        }));
-                        console.log("Fetched items:", items);
-                        setItemDetails(items);
-                      } else {
+                        const res = await api.get(`/grn/po-items/${selectedPO.poNo}`);
+                        if (Array.isArray(res.data)) {
+                          const items = res.data.map((item: any) => ({
+                            poitemDetailId: item.poitemDetailId,
+                            itemName: item.itemName,
+                            poQuantity: item.poQuantity,
+                            preRecivedQuantity: item.preRecivedQuantity,
+                            balance: item.balance, // can also use item.balance if you return it
+                            recivedQuantity: 0, // always fresh for new GRN
+                            selected: false,
+                          }));
+
+                          setItemDetails(items);
+                        } else {
+                          setItemDetails([]);
+                        }
+                      } catch (err) {
+                        console.error("Error fetching PO item details", err);
                         setItemDetails([]);
                       }
-                    } catch (err) {
-                      console.error("Error fetching PO item details by PO No", err);
-                      setItemDetails([]);
-                    }
 
-                        props.onPOChange?.(val);
+
+                        //props.onPOChange?.(val);
                         if (errData?.poNo) errData.poNo = "";
                       }
                   }}
