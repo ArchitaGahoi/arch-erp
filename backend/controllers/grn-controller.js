@@ -337,7 +337,7 @@ exports.getGRNById = (req, res) => {
     FROM PurchaseOrderItemDetail p
     JOIN ItemMaster i ON p.itemId = i.itemId
     LEFT JOIN GRNItemDetail gThis 
-          ON p.itemDetailId = gThis.poitemDetailId AND gThis.gr nId = ?
+          ON p.itemDetailId = gThis.poitemDetailId AND gThis.grnId = ?
     LEFT JOIN GRNItemDetail gAll 
           ON p.itemDetailId = gAll.poitemDetailId
     WHERE p.poId = (
@@ -348,12 +348,13 @@ exports.getGRNById = (req, res) => {
   `;
 
 
+
   db.query(grnSql, [grnId], (err, grn) => {
     if (err || grn.length === 0) {
       return res.status(500).json({ message: "Error fetching GRN" });
     }
 
-    db.query(itemSql, [grnId, grnId, grnId], (err, items) => {
+    db.query(itemSql, [grnId, grnId], (err, items) => {
       if (err) {
         console.error("Item SQL Error:", err);
         return res.status(500).json({ message: "Error fetching items", error: err });

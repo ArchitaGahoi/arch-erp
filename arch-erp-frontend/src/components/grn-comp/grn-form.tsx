@@ -45,9 +45,11 @@ interface grnFormProps {
   disableAll?: boolean;
   // onSupplierChange?: (supplierLocationNo: string) => void;
   // onPOChange?: (poNo: string) => void;
+  onPOChange?: (poNo: string) => void;
+  onSupplierChange?: () => void;
 }
 
-interface ErrorData {
+interface ErrorData { 
   grnNo?: string;
   grnDate?: string;
   statusNo?: string;
@@ -302,7 +304,8 @@ const GRNForm = forwardRef(function grnForm(
                 <FormControl>
                   <Combobox value={field.value} onChange={(val) => {
                     field.onChange(val); 
-                    // onSupplierChange?.(val);
+                    props.onSupplierChange?.(String(val));
+                    
                   }} disabled={disableAll}>
                     <div className="relative">
                       <Combobox.Input
@@ -410,7 +413,7 @@ const GRNForm = forwardRef(function grnForm(
                       setItemDetails([]);
                     }
 
-                    // onPOChange?.(val);
+                        props.onPOChange?.(val);
                         if (errData?.poNo) errData.poNo = "";
                       }
                   }}

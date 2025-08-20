@@ -51,38 +51,38 @@ export default function GRNPage() {
   const deleteEnabled = !!editItem && editItem.statusNo === 1;
 
   
-useEffect(() => {
-  if (location.state?.editItem) {
-    const grnFullData = location.state.editItem;
-    console.log("grnFullData--->", grnFullData) 
-    const enrichedEditItem = {
-    ...grnFullData,
-    supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
-    };
-    console.log("enrichedEditItem--->", enrichedEditItem);
-    console.log("itemDetails from backend:", grnFullData.itemDetails);
-    const mappedItems = (grnFullData.itemDetails || []).map((item: any) => {
-    const poQty = parseFloat(item.poQuantity) || 0;
-    const pre = parseFloat(item.preRecivedQuantity) || 0;
-    const curr = parseFloat(item.recievedQty) || 0;
+// useEffect(() => {
+//   if (location.state?.editItem) {
+//     const grnFullData = location.state.editItem;
+//     console.log("grnFullData--->", grnFullData) 
+//     const enrichedEditItem = {
+//     ...grnFullData,
+//     supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
+//     };
+//     console.log("enrichedEditItem--->", enrichedEditItem);
+//     console.log("itemDetails from backend:", grnFullData.itemDetails);
+//     const mappedItems = (grnFullData.itemDetails || []).map((item: any) => {
+//     const poQty = parseFloat(item.poQuantity) || 0;
+//     const pre = parseFloat(item.preRecivedQuantity) || 0;
+//     const curr = parseFloat(item.recievedQty) || 0;
 
-    return {
-      poitemDetailId: item.poitemDetailId,
-      itemName: item.itemName,
-      poQuantity: poQty,
-      preRecivedQuantity: pre,
-      recivedQuantity: curr,
-      balance: poQty - (pre + curr),
-      selected: item.selected === 1
-    };
-  });
+//     return {
+//       poitemDetailId: item.poitemDetailId,
+//       itemName: item.itemName,
+//       poQuantity: poQty,
+//       preRecivedQuantity: pre,
+//       recivedQuantity: curr,
+//       balance: poQty - (pre + curr),
+//       selected: item.selected === 1
+//     };
+//   });
 
-    setEditItem(enrichedEditItem);
-    setItemDetails(mappedItems);
-    // setTaxDetails(fullData.taxDetails || []);
-    // setNetAmount(Number(fullData.netAmount) || 0);
-  }
-}, [location.state]);
+//     setEditItem(enrichedEditItem);
+//     setItemDetails(mappedItems);
+//     // setTaxDetails(fullData.taxDetails || []);
+//     // setNetAmount(Number(fullData.netAmount) || 0);
+//   }
+// }, [location.state]);
 
   // useEffect(() => {
   //   const totalItemAmount = itemDetails.reduce((prev, curr) => prev + curr.amount, 0);
@@ -103,6 +103,56 @@ useEffect(() => {
   //   fetchItems();
   // }, []);
 
+  useEffect(() => {
+    const loadGRN = async () => {
+      try {
+        let grnFullData = location.state?.editItem;
+
+        // fallback: fetch from API if only id is available
+        if (!grnFullData && location.state?.grnId) {
+          const res = await api.get(`/grn/${location.state.grnId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          grnFullData = res.data;
+        }
+
+        if (!grnFullData) return; // create mode
+
+        const enrichedEditItem = {
+          ...grnFullData,
+          supplierLocationLabel: `${grnFullData.bpName} (${grnFullData.bpCode}) (${grnFullData.bpAddress})`,
+        };
+
+        const mappedItems = (grnFullData.itemDetails || []).map((item: any) => {
+          const poQty = parseFloat(item.poQuantity) || 0;
+          const pre = parseFloat(item.preRecivedQuantity) || 0;
+          const curr = parseFloat(item.recievedQty) || 0;
+          return {
+            poitemDetailId: item.poitemDetailId,
+            itemName: item.itemName,
+            poQuantity: poQty,  
+            preRecivedQuantity: pre,
+            recivedQuantity: curr,
+            balance: poQty - pre,
+            selected: item.selected === 1,
+          };
+        });
+
+        const mappedFiltered = mappedItems.filter(
+          (it: { selected: boolean; balance: number }) => it.selected || it.balance > 0
+        );
+
+        setEditItem(enrichedEditItem);
+        setItemDetails(mappedFiltered);
+      } catch (err) {
+        console.error("Failed to fetch GRN", err);
+        toast.error("Failed to load GRN details");
+      }
+    };
+
+    loadGRN();
+  }, [location.state]);
+
     const formatDateTime = (date: Date): string => {
     if (!date) return "";
     return new Date(date).toISOString().slice(0, 19).replace("T", " ");
@@ -117,6 +167,7 @@ useEffect(() => {
     const invalidItems = selectedItems.filter((item: any) => {
     const maxQty = item.poQuantity - item.preRecivedQuantity;
     const balance = item.poQuantity - (item.preRecivedQuantity + (item.recivedQuantity || 0));
+
 
     return (
       item.recivedQuantity < 0 ||       
@@ -262,29 +313,62 @@ useEffect(() => {
     navigate("/grn-search");
   };
 
-//   const handleSupplierChange = (supplierLocationNo: string) => {
-//   formRef.current?.reset();
-//   setItemDetails([]);
-// };
+ const handleSupplierChange = () => {
+  //formRef.current?.reset();
+  setItemDetails([]);
+};
 
-//   const handlePOChange = async (poNo: string) => {
-//     try {
-//       const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`);
-//       const items = res.data.map((item: any) => ({
-//         itemName: item.itemName,
-//         poQuantity: item.poQuantity,
-//         preRecivedQuantity: item.preRecivedQuantity || 0,
-//         balance: item.poQuantity - (item.preRecivedQuantity || 0),
-//         recivedQuantity: 0,
-//         selected: false
-//       }));
-//       setItemDetails(items);
-//     } catch (err) {
-//       toast.error("Failed to load item details");
-//       setItemDetails([]);
-//     }
-//   };
+  // const handlePOChange = async (poNo: string) => {
+  //   try {
+  //     const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`);
+  //     const items = res.data.map((item: any) => ({
+  //       itemName: item.itemName,
+  //       poQuantity: item.poQuantity,
+  //       preRecivedQuantity: item.preRecivedQuantity || 0,
+  //       balance: item.poQuantity - (item.preRecivedQuantity || 0),
+  //       recivedQuantity: 0,
+  //       selected: false
+  //     }));
+  //     setItemDetails(items);
+  //   } catch (err) {
+  //     toast.error("Failed to load item details");
+  //     setItemDetails([]);
+  //   }
+  // };
 
+  const handlePOChange = async (poNo: string) => {
+    if (!poNo) {
+      setItemDetails([]);
+      return;
+    }
+    try {
+      const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const items = res.data.map((item: any) => {
+          const poQty = parseFloat(item.poQuantity) || 0;
+          const pre = parseFloat(item.preRecivedQuantity) || 0;
+          const balance = poQty - pre;
+          return {
+            poitemDetailId: item.poitemDetailId ?? item.itemDetailId,
+            itemName: item.itemName,
+            poQuantity: poQty,
+            preRecivedQuantity: pre, // previous received qty (all past GRNs)
+            recivedQuantity: 0,
+            balance: balance,
+            selected: false,
+          };
+        })
+        .filter((it: any) => it.balance > 0); // only items with remaining balance
+
+      setItemDetails(items);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load item details");
+      setItemDetails([]);
+    }
+  };
 
   // const handleAddItem = () => {
   //   setShowItemDetailForm(true);
@@ -383,8 +467,8 @@ useEffect(() => {
           itemDetails={itemDetails}
           setItemDetails={setItemDetails}
           disableAll={isReadOnly}
-          //onSupplierChange={handleSupplierChange}
-          //onPOChange={handlePOChange}
+          onSupplierChange={handleSupplierChange}
+          onPOChange={handlePOChange}
         />
 
         <ItemDetailGrid

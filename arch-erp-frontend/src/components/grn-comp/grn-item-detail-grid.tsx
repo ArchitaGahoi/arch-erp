@@ -44,8 +44,10 @@ const ItemDetailGrid = ({ itemDetails, setItemDetails, onRowClick, isReadOnly}: 
         </thead>
         <tbody>
           {itemDetails.map((item, index) =>{
-          const currentBalance =
-                item.poQuantity - (item.preRecivedQuantity + (item.recivedQuantity || 0));
+          // const currentBalance =
+          //       item.poQuantity - (item.preRecivedQuantity + (item.recivedQuantity || 0));
+          const currentBalance = item.poQuantity - item.preRecivedQuantity;
+
           
           
           
