@@ -713,22 +713,33 @@ exports.updateGRN = (req, res) => {
 
 
 
-
 // PO item fetch for GRN creation
 exports.getPOItemsForGRN = async (req, res) => {
   const poNo = req.params.poNo;
 
   const sql = `
     SELECT 
-      d.itemDetailId AS poitemDetailId, d.quantity AS poQuantity, i.itemName,
-      COALESCE(SUM(g.recievedQty), 0) AS preRecivedQuantity
+      d.itemDetailId AS poitemDetailId,
+      d.quantity AS poQuantity,
+      i.itemName,
+      COALESCE((
+        SELECT SUM(g.recievedQty)
+        FROM GRNItemDetail g
+        JOIN GRN grn ON grn.grnId = g.grnId
+        WHERE g.poitemDetailId = d.itemDetailId
+      ), 0) AS preRecivedQuantity,
+      (d.quantity - COALESCE((
+        SELECT SUM(g.recievedQty)
+        FROM GRNItemDetail g
+        JOIN GRN grn ON grn.grnId = g.grnId
+        WHERE g.poitemDetailId = d.itemDetailId
+      ), 0)) AS balance
     FROM PurchaseOrderItemDetail d
     JOIN ItemMaster i ON d.itemId = i.itemId
-    LEFT JOIN GRNItemDetail g ON g.poitemDetailId = d.itemDetailId
     JOIN PurchaseOrder po ON d.poId = po.poId
     WHERE po.poNo = ?
-    GROUP BY d.itemDetailId
-    HAVING poQuantity > preRecivedQuantity
+    GROUP BY d.itemDetailId, d.quantity, i.itemName
+    HAVING balance > 0
   `;
 
   db.query(sql, [poNo], (err, results) => {
@@ -738,7 +749,7 @@ exports.getPOItemsForGRN = async (req, res) => {
       itemName: row.itemName,
       poQuantity: row.poQuantity,
       preRecivedQuantity: row.preRecivedQuantity,
-      balance: row.poQuantity - row.preRecivedQuantity,
+      balance: row.balance,
     }));
     res.json(items);
   });

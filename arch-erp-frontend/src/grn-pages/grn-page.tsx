@@ -342,25 +342,23 @@ export default function GRNPage() {
       return;
     }
     try {
-      const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`, {
+      // const res: { data: any[] } = await api.get(`/purchase-order/items/${poNo}`, {
+      //   headers: { Authorization: `Bearer ${token}` },
+      // });
+      
+      const res: { data: any[] } = await api.get(`/grn/po-items/${poNo}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const items = res.data.map((item: any) => {
-          const poQty = parseFloat(item.poQuantity) || 0;
-          const pre = parseFloat(item.preRecivedQuantity) || 0;
-          const balance = poQty - pre;
-          return {
-            poitemDetailId: item.poitemDetailId ?? item.itemDetailId,
-            itemName: item.itemName,
-            poQuantity: poQty,
-            preRecivedQuantity: pre, // previous received qty (all past GRNs)
-            recivedQuantity: 0,
-            balance: balance,
-            selected: false,
-          };
-        })
-        .filter((it: any) => it.balance > 0); // only items with remaining balance
+      const items = res.data.map((item: any) => ({
+        poitemDetailId: item.poitemDetailId ?? item.itemDetailId,
+        itemName: item.itemName,
+        poQuantity: item.poQuantity,
+        preRecivedQuantity: item.preRecivedQuantity,
+        recivedQuantity: 0,
+        balance: item.balance,
+        selected: false,
+      }));
 
       setItemDetails(items);
     } catch (err) {
