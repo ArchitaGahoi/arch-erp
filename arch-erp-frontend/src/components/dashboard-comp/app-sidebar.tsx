@@ -177,7 +177,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="h-8 w-8 object-contain mr-0"
                 />
                 {/* <IconInnerShadowTop className="!size-5" /> */}
-                <span className="text-base font-bold ">Arch-ERP</span>
+                <span className="text-lg font-logo text-gray-800 dark:text-gray-100 tracking-wide">
+                  Arch-ERP
+                </span>
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
