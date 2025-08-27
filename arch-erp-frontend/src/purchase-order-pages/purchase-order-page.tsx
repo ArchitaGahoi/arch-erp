@@ -23,7 +23,7 @@ type ItemDetail = {
 
 type TaxDetail = {
   taxName: string;
-  nature: "Add" | "Subtract";
+  nature: 1 | 2;
   amount: number;
 };
 
@@ -50,7 +50,7 @@ export default function PurchaseOrderPage() {
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   //const [itemMasters, setItemMasters] = useState<ItemMaster[]>([]);
   const [isDelete, setIsDelete] = useState(false);
-  const initializedRef = useRef(false);
+  //const initializedRef = useRef(false);
 
   const deleteEnabled = !!editItem && editItem.statusNo === 1;
   const isAuthorised = editItem?.statusNo === 2;
@@ -296,8 +296,6 @@ useEffect(() => {
           handleDialogOpen();
           setDialogAction(()=>()=>handleSave());
         }}
-        
-        errData={errData}
       />
       )}
         

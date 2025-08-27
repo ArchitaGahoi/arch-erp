@@ -37,6 +37,11 @@ const handleEdit = async (receipt: GRN) => {
     navigate("/grn-page");
   };
 
+  // Add this handler
+  const handleRowClick = (receipt: GRN) => {
+    console.log("clicked:", receipt);
+  };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
@@ -45,7 +50,7 @@ const handleEdit = async (receipt: GRN) => {
           <Button onClick={handleAdd} variant="outline">Add</Button>
         </div>
       </div>
-      <GRNTable receipts={receipts} onEdit={handleEdit} />
+      <GRNTable receipts={receipts} onEdit={handleEdit} onRowClick={handleRowClick} />
     </div>
   );
 }

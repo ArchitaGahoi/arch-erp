@@ -83,12 +83,12 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
 
   const [query, setQuery] = useState("");
   const [supplierOptions, setSupplierOptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        setLoading(true);
+        //setLoading(true);
         const res = await api.get("/business-partner/partner");
         console.log("ds",res);
         if (Array.isArray(res.data)) {
@@ -97,7 +97,7 @@ const purchaseOrderForm = forwardRef(function purchaseOrderForm(
       } catch (err) {
         setSupplierOptions([]);
       } finally {
-        setLoading(false);
+        //setLoading(false);
       }
     };
 

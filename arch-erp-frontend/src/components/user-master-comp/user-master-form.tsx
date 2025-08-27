@@ -5,15 +5,16 @@ import { forwardRef, useImperativeHandle } from "react";
 import { Combobox } from '@headlessui/react';
 import { useState } from 'react';
 import { ErrorMessage} from '@hookform/error-message';
+import { z } from "zod";
 
-// const formSchema = z.object({
-//   code: z.string().min(1, "user code is required").max(6, "User code must be 6 characters long"),
-//   emailId: z.string().email("email Id is required").max(50, "User EmailId must be 50 characters long"),
-//   password: z.string().min(1, "password is required").max(100, "User Password must be 100 characters long"),
-//   userType: z.string().min(1, "user type is required").max(10, "User type must be 10 characters long"),
-// });
+const formSchema = z.object({
+  code: z.string().min(1, "user code is required").max(6, "User code must be 6 characters long"),
+  emailId: z.string().email("email Id is required").max(50, "User EmailId must be 50 characters long"),
+  password: z.string().min(1, "password is required").max(100, "User Password must be 100 characters long"),
+  userType: z.string().min(1, "user type is required").max(10, "User type must be 10 characters long"),
+});
 
-// export type userFormData = z.infer<typeof formSchema>;
+export type userFormData = z.infer<typeof formSchema>;
 
 interface userMasterFormProps {
   defaultValues?: userFormData;

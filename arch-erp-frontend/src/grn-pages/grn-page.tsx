@@ -39,12 +39,12 @@ export default function GRNPage() {
   const [itemDetails, setItemDetails] = useState<ItemDetail[]>([]);
   // const [taxDetails, setTaxDetails] = useState<TaxDetail[]>([]);
   //const [netAmount, setNetAmount] = useState(0);
-  const [showItemDetailForm, setShowItemDetailForm] = useState(false);
+  //const [showItemDetailForm, setShowItemDetailForm] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogAction, setDialogAction] = useState<() => void>(() => {});
   //const [itemMasters, setItemMasters] = useState<ItemMaster[]>([]);
   const [isDelete, setIsDelete] = useState(false);
-  const initializedRef = useRef(false);
+  //const initializedRef = useRef(false);
 
   const isReadOnly = editItem?.statusNo === 2;
 
@@ -436,7 +436,7 @@ export default function GRNPage() {
           setDialogAction(()=>()=>handleSave());
         }}
         
-        errData={errData}
+        //errData={errData}
       />
         
         <GRNForm

@@ -26,14 +26,14 @@ interface BusinessPartnerFormProps {
 }
 
 interface ErrorData {
-  bpCode: string;
-  bpName: string;
-  bpType: string;
-  bpAddress: string;
-  pin: string;
-  state: string;
-  city: string;
-  country: string;
+  bpCode?: string;
+  bpName?: string;
+  bpType?: string;
+  bpAddress?: string;
+  pin?: string;
+  state?: string;
+  city?: string;
+  country?: string;
 }
 
 // Add forwardRef to expose reset

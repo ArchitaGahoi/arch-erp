@@ -11,7 +11,7 @@ import {
   // IconFileWord,
   IconFolder,
   //IconHelp,
-  IconInnerShadowTop,
+  //IconInnerShadowTop,
   IconListDetails,
   // IconReport,
   // IconSearch,

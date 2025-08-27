@@ -14,7 +14,7 @@ import { useEffect, forwardRef, useImperativeHandle, useState } from "react";
 import { Combobox } from "@headlessui/react";
 //import axios from "axios";
 import { api } from "@/lib/api";
-import ItemDetailGrid from "./grn-item-detail-grid";
+//import ItemDetailGrid from "./grn-item-detail-grid";
 
 const formSchema = z.object({
   grnNo : z.string().min(1, "GR No is required").max(6, "GR No must be 6 characters long"),
@@ -71,7 +71,7 @@ interface ItemDetail {
 
 
 const GRNForm = forwardRef(function grnForm(
-  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },isEdit,  errData, itemDetails, setItemDetails, disableAll}: grnFormProps,
+  { defaultValues = { grnNo: "", grnDate: new Date(), statusNo: "Initialised", supplierLocationNo: "", poNo: "", challanNo: "", challanDate: new Date() },isEdit,  errData,  setItemDetails, disableAll}: grnFormProps,
   ref: React.Ref<{ reset: () => void; getValues: () => any }>
 ) {
   console.log("defaultValues----", defaultValues)
@@ -112,7 +112,7 @@ const GRNForm = forwardRef(function grnForm(
 
   const [query, setQuery] = useState("");
   const [supplierOptions, setSupplierOptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   const [poOptions, setPoOptions] = useState<any[]>([]);
   
 
@@ -120,7 +120,7 @@ const GRNForm = forwardRef(function grnForm(
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        setLoading(true);
+        //setLoading(true);
         const res = await api.get("/business-partner/partner");
         console.log("ds",res);
         if (Array.isArray(res.data)) {
@@ -129,7 +129,7 @@ const GRNForm = forwardRef(function grnForm(
       } catch (err) {
         setSupplierOptions([]); 
       } finally {
-        setLoading(false);
+        //setLoading(false);
       }
     };
 

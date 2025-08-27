@@ -4,10 +4,10 @@ import{ api } from "@/lib/api";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
-  IconCreditCard,
+  // IconCreditCard,
   IconDotsVertical,
   IconLogout,
-  IconNotification,
+  // IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react"
 
@@ -29,9 +29,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  // useSidebar,
 } from "@/components/ui/sidebar"
-import { ThemeToggle } from "@/components/layout-comp/theme-toggle";
+// import { ThemeToggle } from "@/components/layout-comp/theme-toggle";
 import { useTheme } from "@/components/layout-comp/theme-context";
 
 

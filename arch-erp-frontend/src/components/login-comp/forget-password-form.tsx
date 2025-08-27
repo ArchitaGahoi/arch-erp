@@ -16,7 +16,7 @@ export function ForgetPasswordForm() {
   const handleRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post("/user-master/forget-password", { emailId });
+      //const res = await api.post("/user-master/forget-password", { emailId });
       //setToken(res.data.token); // For demo, show token
       setStep(2);
       setMsg("OTP sent successfully. Please check your email.");
@@ -28,7 +28,7 @@ export function ForgetPasswordForm() {
   const handleOtpVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post("/user-master/verify-otp", { emailId, otp });
+      const res = await api.post<{ token: string }>("/user-master/verify-otp", { emailId, otp });
       setToken(res.data.token);
       setStep(3);
       setMsg("OTP verified. You can now reset password.");
