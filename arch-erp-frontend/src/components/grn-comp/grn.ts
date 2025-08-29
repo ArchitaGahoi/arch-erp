@@ -2,7 +2,7 @@ export interface GRN {
   grnId: number
   grnNo: string
   grnDate: string
-  statusNo: string
+  statusNo: number
   supplierLocationNo: string
   supplierLocationLabel?: string;
   poNo: string
