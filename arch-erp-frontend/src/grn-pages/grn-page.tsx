@@ -20,6 +20,15 @@ import { Button } from "@/components/ui/button";
 //   unit: string; 
 // };
 
+type ItemDetail = {
+  poitemDetailId: number;
+  itemName: string;
+  poQuantity: number;
+  preRecivedQuantity: number;
+  recivedQuantity: number;
+  balance: number;
+  selected?: boolean;
+};
 
 // type ItemMaster = {
 //   itemId: string;
